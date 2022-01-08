@@ -33,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          token: {{ secrets.MACHINEUSERACCESSTOKEN }}
+          token: ${{ secrets.MACHINEUSERACCESSTOKEN }}
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
