@@ -38,6 +38,8 @@ jobs:
         run:
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY_MACHINE_USER }}"
+          git config --global user.email "97338341+cosmomachineuser@users.noreply.github.com"
+          git config --global user.name "cosmomachineuser"
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
@@ -45,6 +47,8 @@ jobs:
       - name: Download private registry
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+          SSH_PUB_KEY_PATH: ~/.ssh/id_rsa_githubmachineuser.pub
+          SSH_KEY_PATH: ~/.ssh/id_rsa_githubmachineuser
         run: |
           julia -e "using Pkg; Registry.add(RegistrySpec(url=ARGS[1]))" "git@github.com:lucasvalenzuela/CosmoSimsRegistry.git"
       - uses: julia-actions/cache@v1
