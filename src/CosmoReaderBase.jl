@@ -27,5 +27,6 @@ export
     next_snapshot
 
 include("cosmosims.jl")
+include("particlecollections.jl")
 
 end

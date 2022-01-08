@@ -19,6 +19,7 @@ Subtypes have to implement the following methods:
 - [`get_last_snapshot`](@ref)
 - [`snapshots`](@ref)
 - [`get_cosmology`](@ref)
+- [`get_name`](@ref)
 """
 abstract type AbstractCosmoSimulation end
 
@@ -81,6 +82,16 @@ Returns the cosmology associated with the simulation.
 See [Cosmology.jl](https://github.com/JuliaAstro/Cosmology.jl).
 """
 function get_cosmology(::AbstractCosmoSimulation) end
+
+
+"""
+    get_name(::AbstractCosmoSimulation)
+
+Returns the name of the simulation.
+
+This is not exported.
+"""
+function get_name(::AbstractCosmoSimulation) end
 
 
 
