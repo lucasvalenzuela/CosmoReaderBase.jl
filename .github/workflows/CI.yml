@@ -45,8 +45,6 @@ jobs:
       - name: Download private registry
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-          SSH_PUB_KEY_PATH: ~/.ssh/id_rsa_githubmachineuser.pub
-          SSH_KEY_PATH: ~/.ssh/id_rsa_githubmachineuser
         run: |
           julia -e "using Pkg; Registry.add(RegistrySpec(url=ARGS[1]))" "git@github.com:lucasvalenzuela/CosmoSimsRegistry.git"
       - uses: julia-actions/cache@v1
