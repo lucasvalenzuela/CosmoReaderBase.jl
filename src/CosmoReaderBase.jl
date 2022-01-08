@@ -24,9 +24,17 @@ export
     get_simulation,
     get_snapshotid,
     prev_snapshot,
-    next_snapshot
+    next_snapshot,
+
+    # Particle Collections
+    AbstractSimulationParticleCollection,
+    SimulationParticleCollection,
+    AbstractHalo,
+    Halo,
+    Subhalo
 
 include("cosmosims.jl")
 include("particlecollections.jl")
+include("reading.jl")
 
 end
