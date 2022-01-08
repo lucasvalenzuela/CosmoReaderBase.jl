@@ -1,0 +1,7 @@
+name = "CosmoReaderBase"
+uuid = "6579406a-6dd7-4184-8517-ba945250c43d"
+authors = ["Lucas Valenzuela"]
+version = "0.1.0"
+
+[compat]
+julia = "1.7"
