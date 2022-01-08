@@ -18,8 +18,6 @@ export
 
     # Simulation
     CosmoSimulation,
-    get_config,
-    get_dir,
 
     # Snapshot
     AbstractSnapshot,

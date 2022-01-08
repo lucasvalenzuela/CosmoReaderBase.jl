@@ -104,6 +104,8 @@ end
     get_config(cs::CosmoSimulation) -> AbstractCosmoReaderConfig
 
 Returns the configuration object associated with the simulation.
+
+This is not exported.
 """
 get_config(cs::CosmoSimulation) = cs.config
 
@@ -111,6 +113,8 @@ get_config(cs::CosmoSimulation) = cs.config
     get_dir(cs::CosmoSimulation)
 
 Returns the directory of the simulation.
+
+This is not exported.
 """
 get_dir(cs::CosmoSimulation) = cs.dir
 
@@ -149,6 +153,8 @@ get_snapshotid(s::AbstractSnapshot) = s.id
     get_config(snapshot::AbstractSnapshot) -> AbstractCosmoReaderConfig
 
 Returns the configuration object associated with the snapshot.
+
+This is not exported.
 """
 get_config(s::AbstractSnapshot) = get_config(get_simulation(s))
 
