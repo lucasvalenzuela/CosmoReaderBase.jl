@@ -6,11 +6,11 @@ DocMeta.setdocmeta!(CosmoReaderBase, :DocTestSetup, :(using CosmoReaderBase); re
 makedocs(;
     modules=[CosmoReaderBase],
     authors="Lucas Valenzuela",
-    repo="https://github.com/lucasvalenzuela/CosmoReaderBase.jl/blob/{commit}{path}#{line}",
+    repo="https://gitlab.lrz.de/juliacosmosims/CosmoReaderBase.jl/blob/{commit}{path}#{line}",
     sitename="CosmoReaderBase.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://lucasvalenzuela.github.io/CosmoReaderBase.jl",
+        canonical="https://juliacosmosims.gitlab.io/CosmoReaderBase.jl",
         assets=String[],
     ),
     pages=[
@@ -19,6 +19,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/lucasvalenzuela/CosmoReaderBase.jl",
+    repo="gitlab.lrz.de/juliacosmosims/CosmoReaderBase.jl",
     devbranch="main",
 )

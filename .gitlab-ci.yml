@@ -1,0 +1,65 @@
+.script:
+  script:
+    - |
+      julia --project=@. -e '
+        using Pkg
+        Pkg.build()
+        Pkg.test(coverage=true)'
+.coverage:
+  coverage: /Test coverage (\d+\.\d+%)/
+  after_script:
+    - |
+      julia -e '
+        using Pkg
+        Pkg.add("Coverage")
+        using Coverage
+        c, t = get_summary(process_folder())
+        using Printf
+        @printf "Test coverage %.2f%%\n" 100c / t'
+Julia 1.7:
+  image: julia:1.7
+  extends:
+    - .script
+    - .coverage
+pages:
+  image: julia:1.7
+  stage: deploy
+  script:
+    - |
+      julia --project=docs -e '
+        using Pkg
+        Pkg.develop(PackageSpec(path=pwd()))
+        Pkg.instantiate()
+        using Documenter: doctest
+        using CosmoReaderBase2
+        doctest(CosmoReaderBase2)
+        include("docs/make.jl")'
+    - mkdir -p public
+    - mv docs/build public/dev
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
+CompatHelper:
+  image: julia:1.7 # Set to the Julia version you want to use
+  stage: compat # You can place this in any stage that makes sense for your setup
+  before_script:
+    - apt-get update -qq && apt-get install -y git
+    - |
+      julia --color=yes -e "
+        import Pkg;
+        ENV["JULIA_PKG_SERVER"] = "";
+        Pkg.Registry.add("General");"
+    - |
+      julia --color=yes -e "
+        import Pkg;
+        name = \"CompatHelper\";
+        uuid = \"aa819f21-2bde-4658-8897-bab36330d9b7\";
+        version = \"3\";
+        Pkg.add(; name, uuid, version)"
+  script:
+    - |
+      julia --color=yes -e "
+        import CompatHelper;
+        CompatHelper.main()"
