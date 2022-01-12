@@ -43,7 +43,7 @@ pages:
     - main
 CompatHelper:
   image: julia:1.7 # Set to the Julia version you want to use
-  stage: compat # You can place this in any stage that makes sense for your setup
+  stage: test # You can place this in any stage that makes sense for your setup
   before_script:
     - apt-get update -qq && apt-get install -y git
     - |
