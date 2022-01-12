@@ -31,7 +31,11 @@ export
     SimulationParticleCollection,
     AbstractHalo,
     Halo,
-    Subhalo
+    Subhalo,
+
+    # Reading
+    read_all_particles,
+    read_particles
 
 include("cosmosims.jl")
 include("particlecollections.jl")
