@@ -4,7 +4,7 @@ CurrentModule = CosmoReaderBase
 
 # CosmoReaderBase
 
-Documentation for [CosmoReaderBase](https://gitlab.lrz.de/juliacosmosims/CosmoReaderBase.jl).
+Documentation for [CosmoReaderBase](https://gitlab.com/juliacosmosims/CosmoReaderBase.jl).
 
 ```@index
 ```

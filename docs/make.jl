@@ -6,7 +6,7 @@ DocMeta.setdocmeta!(CosmoReaderBase, :DocTestSetup, :(using CosmoReaderBase); re
 makedocs(;
     modules=[CosmoReaderBase],
     authors="Lucas Valenzuela",
-    repo="https://gitlab.lrz.de/juliacosmosims/CosmoReaderBase.jl/blob/{commit}{path}#{line}",
+    repo="https://gitlab.com/juliacosmosims/CosmoReaderBase.jl/blob/{commit}{path}#{line}",
     sitename="CosmoReaderBase.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
@@ -19,6 +19,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="gitlab.lrz.de/juliacosmosims/CosmoReaderBase.jl",
+    repo="gitlab.com/juliacosmosims/CosmoReaderBase.jl",
     devbranch="main",
 )
