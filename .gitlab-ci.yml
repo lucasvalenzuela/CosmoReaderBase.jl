@@ -7,7 +7,7 @@ before_script:
   - |
     julia -e '
       using Pkg
-      Registry.add(RegistrySpec(url="git@gitlab.com:lucasvalenzuela/CosmoSimsRegistry.git"))'
+      Registry.add(RegistrySpec(url="git@gitlab.com:juliacosmosims/CosmoSimsRegistry.git"))'
 .script:
   script:
     - |
