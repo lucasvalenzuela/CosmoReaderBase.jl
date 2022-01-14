@@ -1,5 +1,9 @@
 .script:
   script:
+    - SSH_AUTH_SOCK=/tmp/ssh_agent.sock
+    - |
+      ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+      ssh-add - <<< "$SSH_PRIVATE_KEY_MACHINE_USER"
     - |
       julia --project=@. -e '
         using Pkg
