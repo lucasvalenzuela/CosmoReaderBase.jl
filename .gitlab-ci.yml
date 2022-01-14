@@ -1,9 +1,11 @@
+before_script:
+  - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY_MACHINE_USER" | tr -d '\r' | ssh-add -
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
 .script:
   script:
-    - SSH_AUTH_SOCK=/tmp/ssh_agent.sock
-    - |
-      ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-      ssh-add - <<< "$SSH_PRIVATE_KEY_MACHINE_USER"
     - |
       julia --project=@. -e '
         using Pkg
