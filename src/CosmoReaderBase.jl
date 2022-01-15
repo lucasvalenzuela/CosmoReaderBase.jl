@@ -34,7 +34,6 @@ export
     Subhalo,
 
     # Reading
-    read_all_particles,
     read_particles
 
 include("cosmosims.jl")
