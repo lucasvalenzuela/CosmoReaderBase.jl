@@ -24,10 +24,11 @@ before_script:
         using Pkg
         Pkg.add("Coverage")
         using Coverage
-        c, t = get_summary(process_folder())
+        processed = process_folder()
+        c, t = get_summary(processed)
         using Printf
         @printf "Test coverage %.2f%%\n" 100c / t
-        Codecov.submit(Codecov.process_folder())'
+        Codecov.submit_local(processed)'
 Julia 1.7:
   image: julia:1.7
   extends:
