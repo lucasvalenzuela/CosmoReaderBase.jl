@@ -41,6 +41,4 @@ include("cosmosims.jl")
 include("particlecollections.jl")
 include("reading.jl")
 
-f(x) = x^2
-
 end
