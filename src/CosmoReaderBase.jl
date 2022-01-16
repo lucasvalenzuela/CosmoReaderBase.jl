@@ -34,7 +34,9 @@ export
     Subhalo,
 
     # Reading
-    read_particles
+    read_particles,
+    read_particles!,
+    read_prop
 
 include("cosmosims.jl")
 include("particlecollections.jl")
