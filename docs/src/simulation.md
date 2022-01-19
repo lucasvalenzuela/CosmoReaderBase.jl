@@ -15,7 +15,7 @@ Different backends for concrete simulation types implement this API individually
 AbstractCosmoSimulation
 has_tree
 get_tree
-get_snapshot(::AbstractCosmoSimulation)
+get_snapshot(::AbstractCosmoSimulation, snapid)
 get_nearest_snapshot
 get_first_snapshot
 get_last_snapshot
