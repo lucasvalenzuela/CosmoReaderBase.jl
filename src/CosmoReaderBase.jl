@@ -33,6 +33,11 @@ export
     Halo,
     Subhalo,
 
+    # Halos and subhalos
+    get_subhalos,
+    get_halo,
+    get_parent_subhalo,
+
     # Reading
     read_particles,
     read_particles!,
@@ -40,6 +45,7 @@ export
 
 include("cosmosims.jl")
 include("particlecollections.jl")
+include("halos.jl")
 include("reading.jl")
 
 end

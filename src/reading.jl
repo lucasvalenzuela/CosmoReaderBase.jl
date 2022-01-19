@@ -207,9 +207,11 @@ This is not exported.
 function read_particle_ids(::AbstractHalo) end
 
 """
-    read_prop(::AbstractHalo)
+    read_prop(halo::AbstractHalo, prop::Symbol)
 
 Returns the halo property.
+
+This function caches the value in simulation units and uses the cached value if available.
 
 # Keyword Arguments
 - `units::Symbol=:physical`: has to be `:sim`, `:physical`, or `:comoving` for simulation, physical, or comoving
@@ -218,4 +220,43 @@ Returns the halo property.
   `units=:sim`
 - `verbose::Bool=false`: whether the output should be verbose or not
 """
-function read_prop(::AbstractHalo) end
+function read_prop(halo::AbstractHalo, prop::Symbol; units::Symbol=:physical, unitful::Bool=false, kwargs...)
+    val = haskey(halo.props, prop) ? halo.props[prop] : read_prop_simunits(halo, prop; kwargs...)
+    return convert_halo_prop(val, prop, get_snapshot(halo) |> get_simulation; units, unitful)
+end
+
+"""
+    read_prop_simunits(halo::AbstractHalo, prop::Symbol; verbose=false)
+
+Returns the halo property in simulation units.
+
+Contrary to [`read_prop`](@ref), this function always reads in the value from the simulation.
+
+This is not exported.
+"""
+function read_prop_simunits(::AbstractHalo, ::Symbol) end
+
+"""
+    convert_halo_prop(val, prop::Symbol, sim::AbstractCosmoSimulation; units::Symbol, unitful::Bool)
+
+Returns the halo's property or properties converted from simulation units to the specified units.
+
+For the allowed values of `units` and `unitful`, see [`read_prop`](@ref).
+The passed value can be a scalar value (`Number`) or an array of values (`AbstractArray`).
+
+This is not exported.
+"""
+function convert_halo_prop(_, ::Symbol, ::AbstractCosmoSimulation) end
+
+
+"""
+    convert_particle_prop(val, prop::Symbol, sim::AbstractCosmoSimulation; units::Symbol, unitful::Bool)
+
+Returns the particles' property or properties converted from simulation units to the specified units.
+
+For the allowed values of `units` and `unitful`, see [`read_prop`](@ref).
+The passed value can be a scalar value (`Number`) or an array of values (`AbstractArray`).
+
+This is not exported.
+"""
+function convert_particle_prop(_, ::Symbol, ::AbstractCosmoSimulation) end

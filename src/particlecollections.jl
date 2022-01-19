@@ -144,7 +144,9 @@ for H in [:Halo, :Subhalo]
 
         A $($(lowercase(String(H))))'s particle collection belonging to a snapshot of a cosmological simulation.
 
-        Individual properties of the $($(lowercase(String(H)))) can be saved in `props`.
+        Individual properties of the $($(lowercase(String(H)))) can be saved in `props`. The reading routines
+        will use `props` to save properties in simulation units. To get the values converted to units,
+        [`read_prop`](@ref) should be used.
         """
         struct $H{AS<:AbstractSnapshot,AP<:AbstractParticles,T} <: AbstractHalo{AS,AP,T}
             snapshot::AS
