@@ -83,6 +83,41 @@ See [Cosmology.jl](https://github.com/JuliaAstro/Cosmology.jl).
 """
 function get_cosmology(::AbstractCosmoSimulation) end
 
+"""
+    isperiodic(sim::AbstractCosmoSimulation) -> Bool
+
+Returns whether the simulated volume is periodic or not.
+"""
+function isperiodic(::AbstractCosmoSimulation) end
+
+"""
+    boxcorners(sim::AbstractCosmoSimulation) -> Vector, Vector
+
+Returns a tuple of the lower left and upper right corners.
+
+# Keyword Arguments
+- `units::Symbol=:physical`: has to be `:sim`, `:physical`, or `:comoving` for simulation, physical, or comoving
+  units, respectively
+- `unitful::Bool=false`: whether unitful units should be added to the properties or not. This is ignored if
+  `units=:sim`
+"""
+function boxcorners(::AbstractCosmoSimulation) end
+
+"""
+    boxlengths(sim::AbstractCosmoSimulation) -> Vector
+
+Returns a vector of the side lengths along the three axes.
+
+# Keyword Arguments
+- `units::Symbol=:physical`: has to be `:sim`, `:physical`, or `:comoving` for simulation, physical, or comoving
+  units, respectively
+- `unitful::Bool=false`: whether unitful units should be added to the properties or not. This is ignored if
+  `units=:sim`
+"""
+function boxlengths(sim::AbstractCosmoSimulation; kwargs...)
+    corners = boxcorners(sim; kwargs...)
+    return corners[2] .- corners[1]
+end
 
 """
     get_name(::AbstractCosmoSimulation)

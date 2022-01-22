@@ -257,3 +257,76 @@ for H in [:Halo, :Subhalo]
         end
     end |> eval
 end
+
+
+"""
+    CosmoParticles.translate_periodic(pc::AbstractSimulationParticleCollection, centerpos::AbstractVector{<:Number}, posprop=:pos)
+
+Translates the particles in-place periodically along the simulation box borders to minimize the distances to `centerpos`.
+
+The particle positions are not shifted if the simulation box is not periodic.
+"""
+function CosmoParticles.translate_periodic(
+    pc::AbstractSimulationParticleCollection,
+    centerpos::AbstractVector{<:Number},
+    posprop=:pos,
+)
+    sim = get_snapshot(pc) |> get_simulation
+    isperiodic(sim) || return pc
+
+    return translate_periodic(pc, centerpos, boxlengths(sim), posprop)
+end
+
+
+"""
+    CosmoParticles.translate_periodic!(pc::AbstractSimulationParticleCollection, centerpos::AbstractVector{<:Number}, posprop=:pos)
+
+In-place version of [`translate_periodic`](@ref).
+"""
+function CosmoParticles.translate_periodic!(
+    pc::AbstractSimulationParticleCollection,
+    centerpos::AbstractVector{<:Number},
+    posprop=:pos,
+)
+    sim = get_snapshot(pc) |> get_simulation
+    isperiodic(sim) || return translate!(pc, -centerpos, posprop)
+
+    return translate_periodic!(pc, centerpos, boxlengths(sim), posprop)
+end
+
+
+"""
+    CosmoParticles.translate_periodic_to_center(pc::AbstractSimulationParticleCollection, centerpos::AbstractVector{<:Number}, posprop=:pos)
+
+Translates the specified property of the particles or collection to place `centerpos` at the origin.
+
+The particles are translated periodically to place them closest to `centerpos`.
+The particle positions are not shifted if the simulation box is not periodic.
+"""
+function CosmoParticles.translate_periodic_to_center(
+    pc::AbstractSimulationParticleCollection,
+    centerpos::AbstractVector{<:Number},
+    posprop=:pos,
+)
+    sim = get_snapshot(pc) |> get_simulation
+    isperiodic(sim) || return translate(pc, -centerpos, posprop)
+
+    return translate_periodic_to_center(pc, centerpos, boxlengths(sim), posprop)
+end
+
+
+"""
+    CosmoParticles.translate_periodic_to_center!(pc::AbstractSimulationParticleCollection, centerpos::AbstractVector{<:Number}, posprop=:pos)
+
+In-place version of [`translate_periodic_to_center`](@ref).
+"""
+function CosmoParticles.translate_periodic_to_center!(
+    pc::AbstractSimulationParticleCollection,
+    centerpos::AbstractVector{<:Number},
+    posprop=:pos,
+)
+    sim = get_snapshot(pc) |> get_simulation
+    isperiodic(sim) || return translate!(pc, -centerpos, posprop)
+
+    return translate_periodic!(pc, centerpos, boxlengths(sim), posprop)
+end

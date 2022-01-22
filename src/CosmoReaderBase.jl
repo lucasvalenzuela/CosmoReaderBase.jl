@@ -1,7 +1,6 @@
 module CosmoReaderBase
 
-using Reexport
-@reexport using CosmoParticles
+using CosmoParticles
 
 export
     # Abstract simulation
@@ -15,6 +14,9 @@ export
     get_last_snapshot,
     snapshots,
     get_cosmology,
+    isperiodic,
+    boxcorners,
+    boxlengths,
 
     # Simulation
     CosmoSimulation,

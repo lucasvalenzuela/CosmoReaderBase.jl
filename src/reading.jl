@@ -9,7 +9,7 @@ through `props` (as a Symbol or AbstractVector of Symbols), only those propertie
 
 The value of `typeprops` is a vector of tuples in the format of `[(:dm, [:pos, :vel]), (:gas, [:pos, :mass])]`.
 
-# Keyword Arguments
+# Keyword arguments
 - `units::Symbol=:physical`: has to be `:sim`, `:physical`, or `:comoving` for simulation, physical, or comoving
   units, respectively
 - `unitful::Bool=false`: whether unitful units should be added to the properties or not. This is ignored if
@@ -40,8 +40,15 @@ end
 Returns the particles with the given IDs in a snapshot with the specified properties.
 
 If a center position and radius are given, only the particles in at least the volume of such a surrounding cube
-are read and filtered by their IDs. Depending on the implementation it is also possible that a larger volume is
+are read and filtered by their IDs. Particles are shifted across the box borders if the volume reaches across the
+borders and the box is periodic. Depending on the implementation it is also possible that a larger volume is
 read in first and particles outside the cube are read in.
+
+
+# Keyword arguments
+- `shift_to_center=false`: if `true`, the particle positions are shifted such that `centerpos` becomes the
+  origin. Particles are shifted across the box borders if the box is periodic. This is ignored if `centerpos` is
+  not given.
 
 For the format of `typeprops` and the possible keywords, see [`read_particles(::AbstractSnapshot)`](@ref).
 """
@@ -66,8 +73,13 @@ end
 
 Returns the particles within a given volume in a snapshot with the specified properties.
 
+Particles are shifted across the box borders if the volume reaches across the borders and the box is periodic.
+
 # Keyword arguments
 - `posprop=:pos`: name of the position property by which to filter the read-in particles
+- `shift_to_center=false`: if `true`, the particle positions are shifted such that `centerpos` becomes the
+  origin. Particles are shifted across the box borders if the box is periodic. This is ignored if `centerpos` is
+  not given.
 
 For further possible keywords, see [`read_particles(::AbstractSnapshot)`](@ref).
 """
@@ -105,7 +117,10 @@ end
 Returns the particles within the given halo with the specified properties.
 
 For the second method, the particles are purely read from the particle collection `pc`. If `typeprops` are not
-given, all available particle types and properties are filtered.
+given, all available particle types and properties are filtered. The units passed should be the same as the
+particle collection was read in with.
+
+Particles are shifted across the box borders if the halo reaches across the borders and the box is periodic.
 
 # Optional arguments
 - `radius`: A Number or a radius property of the halo as a Symbol to indicate what cubic volume around the halo's
@@ -115,6 +130,9 @@ given, all available particle types and properties are filtered.
 # Keyword arguments
 - `rscale::Real=1`: If `radius` given, it is multiplied by rscale to determine the cubic volume to read in. This
   is especially relevant for when `radius` is a halo property.
+- `shift_to_center=false`: if `true`, the particle positions are shifted such that `centerpos` becomes the
+  origin. Particles are shifted across the box borders if the box is periodic. This is ignored if `centerpos` is
+  not given.
 
 For further possible keywords, see [`read_particles(::AbstractSnapshot)`](@ref).
 """
@@ -145,10 +163,21 @@ function read_particles!(
     halo::AbstractHalo,
     pc::AbstractParticleCollection,
     typeprops::Union{AbstractVector{<:Tuple},Nothing}=nothing;
-    kwargs...,
+    shift_to_center::Bool=false,
+    units::Symbol=:physical,
+    unitful::Bool=false,
+    posprop::Symbol=:pos,
 )
     ids = read_particle_ids(halo)
     copy!(halo, filter(pc; ids, affect=typeprops))
+
+    # shift according to halo center
+    centerpos = read_prop(halo, :pos; units, unitful)
+    if shift_to_center
+        translate_periodic_to_center!(halo, centerpos, posprop)
+    else
+        translate_periodic!(halo, centerpos, posprop)
+    end
     return halo
 end
 
@@ -158,12 +187,33 @@ function read_particles!(
     typeprops::AbstractVector{<:Tuple},
     radius::Union{Number,Symbol};
     rscale::Real=1,
+    shift_to_center::Bool=false,
     units::Symbol=:physical,
     unitful::Bool=false,
-    kwargs...,
+    posprop::Symbol=:pos,
+    forceshift::Bool=false,
 )
     centerpos = read_prop(halo, :pos; units, unitful)
     r = rscale * _get_val_or_halo_prop(radius, halo, units, unitful)
+
+    sim = get_snapshot(pc) |> get_simulation
+
+    # shift according to halo center and check if volume not inside box for periodic boxes
+    if isperiodic(sim)
+        lowerleft, upperright = boxcorners(sim)
+        if any(centerpos .- r .≤ lowerleft) || any(centerpos .+ r .≥ upperright) || forceshift
+            if shift_to_center
+                pc = translate_periodic_to_center(pc, centerpos, posprop)
+            else
+                pc = translate_periodic(pc, centerpos, posprop)
+            end
+        elseif shift_to_center
+            pc = translate(pc, -centerpos, posprop)
+        end
+    elseif shift_to_center
+        pc = translate(pc, -centerpos, posprop)
+    end
+
     pc_halo = filter(pc, CosmoHypercube(centerpos, r); affect=typeprops)
 
     ids = read_particle_ids(halo)
@@ -185,8 +235,13 @@ end
 
 Returns the particles within the cuboid given by the lower left and upper right corner in a snapshot with the
 specified properties.
+Particles are shifted across the box borders if the cuboid reaches across the borders and the box is periodic.
 
-For the possible keywords, see [`read_particles(::AbstractSnapshot)`](@ref).
+# Keyword arguments
+For the possible keywords, see [`read_particles(::AbstractSnapshot)`](@ref), and additionally:
+- `shift_to_center=false`: if `true`, the particle positions are shifted such that `centerpos` becomes the
+  origin. Particles are shifted across the box borders if the box is periodic. This is ignored if `centerpos` is
+  not given.
 
 This is not exported.
 """
@@ -213,7 +268,7 @@ Returns the halo property.
 
 This function caches the value in simulation units and uses the cached value if available.
 
-# Keyword Arguments
+# Keyword arguments
 - `units::Symbol=:physical`: has to be `:sim`, `:physical`, or `:comoving` for simulation, physical, or comoving
   units, respectively
 - `unitful::Bool=false`: whether unitful units should be added to the properties or not. This is ignored if
