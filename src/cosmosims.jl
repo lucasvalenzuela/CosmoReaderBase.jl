@@ -96,7 +96,7 @@ function isperiodic(::AbstractCosmoSimulation) end
 Returns a tuple of the lower left and upper right corners.
 
 # Keyword Arguments
-- `units::Symbol=:physical`: has to be `:sim`, `:physical`, or `:comoving` for simulation, physical, or comoving
+- `units::Symbol=:comoving`: has to be `:sim` or `:comoving` for simulation or comoving
   units, respectively
 - `unitful::Bool=false`: whether unitful units should be added to the properties or not. This is ignored if
   `units=:sim`
@@ -109,7 +109,7 @@ function boxcorners(::AbstractCosmoSimulation) end
 Returns a vector of the side lengths along the three axes.
 
 # Keyword Arguments
-- `units::Symbol=:physical`: has to be `:sim`, `:physical`, or `:comoving` for simulation, physical, or comoving
+- `units::Symbol=:comoving`: has to be `:sim` or `:comoving` for simulation or comoving
   units, respectively
 - `unitful::Bool=false`: whether unitful units should be added to the properties or not. This is ignored if
   `units=:sim`
@@ -233,3 +233,41 @@ Returns the cosmology associated with the simulation of the snapshot.
 See [Cosmology.jl](https://github.com/JuliaAstro/Cosmology.jl).
 """
 get_cosmology(s::AbstractSnapshot) = get_cosmology(get_simulation(s))
+
+"""
+    boxcorners(snapshot::AbstractSnapshot) -> Vector, Vector
+
+Returns a tuple of the lower left and upper right corners.
+
+# Keyword arguments
+- `units::Symbol=:physical`: has to be `:sim`, `:physical`, or `:comoving` for simulation, physical, or comoving
+  units, respectively
+- `unitful::Bool=false`: whether unitful units should be added to the properties or not. This is ignored if
+  `units=:sim`.
+"""
+function boxcorners(s::AbstractSnapshot; units::Symbol=:physical, unitful::Bool=false)
+    sim = get_simulation(s)
+    if units === :physical
+        a = 1 / (1 + redshift(s))
+        corners = boxcorners(sim; units=:comoving, unitful)
+        return corners[1] * a, corners[2] * a
+    else
+        return boxcorners(sim; units, unitful)
+    end
+end
+
+"""
+    boxlengths(snapshot::AbstractSnapshot) -> Vector
+
+Returns a vector of the side lengths along the three axes.
+
+# Keyword arguments
+- `units::Symbol=:physical`: has to be `:sim`, `:physical`, or `:comoving` for simulation, physical, or comoving
+  units, respectively
+- `unitful::Bool=false`: whether unitful units should be added to the properties or not. This is ignored if
+  `units=:sim`.
+"""
+function boxlengths(s::AbstractSnapshot; kwargs...)
+    corners = boxcorners(s; kwargs...)
+    return corners[2] .- corners[1]
+end

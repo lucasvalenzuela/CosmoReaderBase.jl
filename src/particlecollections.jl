@@ -265,16 +265,26 @@ end
 Translates the particles in-place periodically along the simulation box borders to minimize the distances to `centerpos`.
 
 The particle positions are not shifted if the simulation box is not periodic.
+
+# Keyword arguments
+- `units::Symbol=:physical`: has to be `:sim`, `:physical`, or `:comoving` for simulation, physical, or comoving
+  units, respectively
+- `unitful::Bool=false`: whether unitful units should be added to the properties or not. This is ignored if
+  `units=:sim`.
 """
 function CosmoParticles.translate_periodic(
     pc::AbstractSimulationParticleCollection,
     centerpos::AbstractVector{<:Number},
-    posprop=:pos,
+    posprop=:pos;
+    units::Symbol=:physical,
+    unitful::Bool=false,
 )
-    sim = get_snapshot(pc) |> get_simulation
+    snapshot = get_snapshot(pc)
+    sim = get_simulation(snapshot)
     isperiodic(sim) || return pc
 
-    return translate_periodic(pc, centerpos, boxlengths(sim), posprop)
+    lengths = boxlengths(snapshot; units, unitful)
+    return translate_periodic(pc, centerpos, lengths, posprop)
 end
 
 
@@ -282,16 +292,22 @@ end
     CosmoParticles.translate_periodic!(pc::AbstractSimulationParticleCollection, centerpos::AbstractVector{<:Number}, posprop=:pos)
 
 In-place version of [`translate_periodic`](@ref).
+
+For the possible keyword arguments, see [`translate_periodic`](@ref).
 """
 function CosmoParticles.translate_periodic!(
     pc::AbstractSimulationParticleCollection,
     centerpos::AbstractVector{<:Number},
-    posprop=:pos,
+    posprop=:pos;
+    units::Symbol=:physical,
+    unitful::Bool=false,
 )
-    sim = get_snapshot(pc) |> get_simulation
+    snapshot = get_snapshot(pc)
+    sim = get_simulation(snapshot)
     isperiodic(sim) || return translate!(pc, -centerpos, posprop)
 
-    return translate_periodic!(pc, centerpos, boxlengths(sim), posprop)
+    lengths = boxlengths(snapshot; units, unitful)
+    return translate_periodic!(pc, centerpos, lengths, posprop)
 end
 
 
@@ -302,16 +318,22 @@ Translates the specified property of the particles or collection to place `cente
 
 The particles are translated periodically to place them closest to `centerpos`.
 The particle positions are not shifted if the simulation box is not periodic.
+
+For the possible keyword arguments, see [`translate_periodic`](@ref).
 """
 function CosmoParticles.translate_periodic_to_center(
     pc::AbstractSimulationParticleCollection,
     centerpos::AbstractVector{<:Number},
-    posprop=:pos,
+    posprop=:pos;
+    units::Symbol=:physical,
+    unitful::Bool=false,
 )
-    sim = get_snapshot(pc) |> get_simulation
+    snapshot = get_snapshot(pc)
+    sim = get_simulation(snapshot)
     isperiodic(sim) || return translate(pc, -centerpos, posprop)
 
-    return translate_periodic_to_center(pc, centerpos, boxlengths(sim), posprop)
+    lengths = boxlengths(snapshot; units, unitful)
+    return translate_periodic_to_center(pc, centerpos, lengths, posprop)
 end
 
 
@@ -319,14 +341,20 @@ end
     CosmoParticles.translate_periodic_to_center!(pc::AbstractSimulationParticleCollection, centerpos::AbstractVector{<:Number}, posprop=:pos)
 
 In-place version of [`translate_periodic_to_center`](@ref).
+
+For the possible keyword arguments, see [`translate_periodic`](@ref).
 """
 function CosmoParticles.translate_periodic_to_center!(
     pc::AbstractSimulationParticleCollection,
     centerpos::AbstractVector{<:Number},
-    posprop=:pos,
+    posprop=:pos;
+    units::Symbol=:physical,
+    unitful::Bool=false,
 )
-    sim = get_snapshot(pc) |> get_simulation
+    snapshot = get_snapshot(pc)
+    sim = get_simulation(snapshot)
     isperiodic(sim) || return translate!(pc, -centerpos, posprop)
 
-    return translate_periodic!(pc, centerpos, boxlengths(sim), posprop)
+    lengths = boxlengths(snapshot; units, unitful)
+    return translate_periodic_to_center!(pc, centerpos, lengths, posprop)
 end
