@@ -46,8 +46,8 @@ read in first and particles outside the radius are read in.
 
 # Keyword arguments
 - `shift_to_center=false`: if `true`, the particle positions are shifted such that `centerpos` becomes the
-  origin. Particles are shifted across the box borders if the box is periodic. This is ignored if `centerpos` is
-  not given.
+  origin. Particles are shifted across the box borders if the box is periodic. This leads to an error if
+  `centerpos` is not given.
 
 For the format of `typeprops` and further possible keywords, see [`read_particles(::AbstractSnapshot)`](@ref).
 """
@@ -80,8 +80,7 @@ outside the defined volume. This is particularly relevant for simulations with a
 # Keyword arguments
 - `posprop=:pos`: name of the position property by which to filter the read-in particles
 - `shift_to_center=false`: if `true`, the particle positions are shifted such that `centerpos` becomes the
-  origin. Particles are shifted across the box borders if the box is periodic. This is ignored if `centerpos` is
-  not given.
+  origin. Particles are shifted across the box borders if the box is periodic.
 
 For further possible keywords, see [`read_particles(::AbstractSnapshot)`](@ref).
 """
@@ -133,8 +132,10 @@ Particles are shifted across the box borders if the halo reaches across the bord
 - `rscale::Real=1`: If `radius` given, it is multiplied by rscale to determine the cubic volume to read in. This
   is especially relevant for when `radius` is a halo property.
 - `shift_to_center=false`: if `true`, the particle positions are shifted such that `centerpos` becomes the
-  origin. Particles are shifted across the box borders if the box is periodic. This is ignored if `centerpos` is
-  not given.
+  origin. Particles are shifted across the box borders if the box is periodic. This leads to an error if
+  `centerpos` is not given.
+- `readall::Bool=false`: if `true`, all particles within a cube with the given `radius` are returned instead of
+  only the particles belonging to the halo. This leads to an error if `centerpos` is not given.
 
 For further possible keywords, see [`read_particles(::AbstractSnapshot)`](@ref).
 """
@@ -154,14 +155,27 @@ function read_particles!(
     rscale::Real=1,
     units::Symbol=:physical,
     unitful::Bool=false,
+    readall::Bool=false,
     kwargs...,
 )
     centerpos = read_prop(halo, :pos; units, unitful)
     r = rscale * _get_val_or_halo_prop(radius, halo, units, unitful)
-    pc = read_particles_in_cuboid(get_snapshot(halo), typeprops, centerpos .- r, centerpos .+ r; units, unitful, kwargs...)
+    pc = read_particles_in_cuboid(
+        get_snapshot(halo),
+        typeprops,
+        centerpos .- r,
+        centerpos .+ r;
+        units,
+        unitful,
+        kwargs...,
+    )
 
-    ids = read_particle_ids(halo)
-    copy!(halo, filter(pc; ids))
+    if !readall
+        ids = read_particle_ids(halo)
+        filter!(pc; ids)
+    end
+
+    copy!(halo, pc)
     return halo
 end
 
@@ -198,6 +212,7 @@ function read_particles!(
     unitful::Bool=false,
     posprop::Symbol=:pos,
     forceshift::Bool=false,
+    readall::Bool=false,
 )
     centerpos = read_prop(halo, :pos; units, unitful)
     r = rscale * _get_val_or_halo_prop(radius, halo, units, unitful)
@@ -220,10 +235,15 @@ function read_particles!(
         pc = translate(pc, -centerpos, posprop)
     end
 
-    pc_halo = filter(pc, CosmoHypercube(centerpos, r); affect=typeprops)
+    centerpos_new = shift_to_center ? zeros(length(centerpos)) : centerpos
+    pc_halo = filter(pc, CosmoHypercube(centerpos_new, r); affect=typeprops)
 
-    ids = read_particle_ids(halo)
-    copy!(halo, filter!(pc_halo; ids))
+    if !readall
+        ids = read_particle_ids(halo)
+        filter!(pc_halo; ids)
+    end
+
+    copy!(halo, pc_halo)
     return halo
 end
 
@@ -246,8 +266,7 @@ Particles are shifted across the box borders if the cuboid reaches across the bo
 # Keyword arguments
 For the possible keywords, see [`read_particles(::AbstractSnapshot)`](@ref), and additionally:
 - `shift_to_center=false`: if `true`, the particle positions are shifted such that `centerpos` becomes the
-  origin. Particles are shifted across the box borders if the box is periodic. This is ignored if `centerpos` is
-  not given.
+  origin. Particles are shifted across the box borders if the box is periodic.
 
 This is not exported.
 """
