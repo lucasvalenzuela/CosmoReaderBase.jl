@@ -47,6 +47,6 @@ prev_snapshot
 next_snapshot
 CosmoParticles.redshift
 get_cosmology(::AbstractSnapshot)
-boxcorner(s::AbstractSnapshot)
+boxcorners(s::AbstractSnapshot)
 boxlengths(::AbstractSnapshot)
 ```
