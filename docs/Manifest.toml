@@ -104,7 +104,7 @@ uuid = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 
 [[deps.FastUnitfulOperations]]
 deps = ["Unitful"]
-path = "../../FastUnitfulOperations"
+git-tree-sha1 = "fb1d932c113983e82f3b695b5c60e3b76de9f9ca"
 uuid = "b031420d-871e-4e9c-8878-33bec386257e"
 version = "0.1.0"
 

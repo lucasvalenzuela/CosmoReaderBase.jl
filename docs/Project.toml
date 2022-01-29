@@ -2,3 +2,4 @@
 CosmoParticles = "b2fead7a-f6ae-4e5b-9c3d-9b85ace3042d"
 CosmoReaderBase = "6579406a-6dd7-4184-8517-ba945250c43d"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+FastUnitfulOperations = "b031420d-871e-4e9c-8878-33bec386257e"
