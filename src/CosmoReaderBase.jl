@@ -1,6 +1,7 @@
 module CosmoReaderBase
 
 using CosmoParticles
+using Unitful
 
 export
     # Abstract simulation
@@ -49,5 +50,6 @@ include("cosmosims.jl")
 include("particlecollections.jl")
 include("halos.jl")
 include("reading.jl")
+include("configutils.jl")
 
 end
