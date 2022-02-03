@@ -317,7 +317,7 @@ This is not exported.
 function read_prop_simunits(::AbstractHalo, ::Symbol) end
 
 """
-    convert_halo_prop!(val, prop::Symbol, sim::AbstractCosmoSimulation; units::Symbol, unitful::Bool)
+    convert_halo_prop!(val, prop::Symbol, sim::AbstractSnapshot; units::Symbol, unitful::Bool)
 
 Returns the halo's property or properties converted in-place from simulation units to the specified units.
 
@@ -326,11 +326,11 @@ The passed value can be a scalar value (`Number`) or an array of values (`Abstra
 
 This is not exported.
 """
-function convert_halo_prop!(_, ::Symbol, ::AbstractCosmoSimulation) end
+function convert_halo_prop!(_, ::Symbol, ::AbstractSnapshot) end
 
 
 """
-    convert_particle_prop!(val, prop::Symbol, sim::AbstractCosmoSimulation; units::Symbol, unitful::Bool)
+    convert_particle_prop!(val, prop::Symbol, sim::AbstractSnapshot; units::Symbol, unitful::Bool)
 
 Returns the particles' property or properties converted in-place from simulation units to the specified units.
 
@@ -339,4 +339,4 @@ The passed value can be a scalar value (`Number`) or an array of values (`Abstra
 
 This is not exported.
 """
-function convert_particle_prop!(_, ::Symbol, ::AbstractCosmoSimulation) end
+function convert_particle_prop!(_, ::Symbol, ::AbstractSnapshot) end
