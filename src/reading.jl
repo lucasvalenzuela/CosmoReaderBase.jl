@@ -302,7 +302,7 @@ This function caches the value in simulation units and uses the cached value if 
 """
 function read_prop(halo::AbstractHalo, prop::Symbol; units::Symbol=:physical, unitful::Bool=false, kwargs...)
     val = haskey(halo.props, prop) ? halo.props[prop] : read_prop_simunits(halo, prop; kwargs...)
-    return convert_halo_prop(val, prop, get_snapshot(halo) |> get_simulation; units, unitful)
+    return convert_halo_prop!(val, prop, get_snapshot(halo) |> get_simulation; units, unitful)
 end
 
 """
