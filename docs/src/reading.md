@@ -27,6 +27,6 @@ Further predefined methods can also be implemented to improve performance.
 
 ```@docs
 read_prop_simunits
-convert_halo_prop
-convert_particle_prop
+convert_halo_prop!
+convert_particle_prop!
 ```

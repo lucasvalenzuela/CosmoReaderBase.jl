@@ -61,9 +61,10 @@ SimulationParticleCollection(snapshot, :dm => Particles(:dm), :gas => Particles(
 """
 function SimulationParticleCollection(
     snapshot::AS,
+    pair::Pair{Symbol,AP},
     pairs::Pair{Symbol,AP}...,
 ) where {AP<:AbstractParticles,AS<:AbstractSnapshot}
-    SimulationParticleCollection{AS,AP}(snapshot, Dict{Symbol,AP}(pairs...))
+    SimulationParticleCollection{AS,AP}(snapshot, Dict{Symbol,AP}(pair, pairs...))
 end
 
 """
@@ -107,7 +108,7 @@ end
 function Base.show(io::IO, mime::MIME"text/plain", pc::SimulationParticleCollection)
     printstyled(io, "ParticleCollection"; bold=true)
     println(io, " at z = $(round(redshift(pc); sigdigits=4)) in $(pc.snapshot |> get_simulation |> get_name)")
-    show_properties(io, mime, pc)
+    CosmoParticles.show_properties(io, mime, pc)
 end
 
 
@@ -191,16 +192,18 @@ for H in [:Halo, :Subhalo]
             snapshot::AS,
             id::T,
             props::Dict,
+            pair::Pair{Symbol,AP},
             pairs::Pair{Symbol,AP}...,
         ) where {AP<:AbstractParticles,AS<:AbstractSnapshot,T}
-            $H{AS,AP,T}(snapshot, id, props, Dict{Symbol,AP}(pairs...))
+            $H{AS,AP,T}(snapshot, id, props, Dict{Symbol,AP}(pair, pairs...))
         end
         function $H(
             snapshot::AS,
             id::T,
+            pair::Pair{Symbol,AP},
             pairs::Pair{Symbol,AP}...,
         ) where {AP<:AbstractParticles,AS<:AbstractSnapshot,T}
-            $H(snapshot, id, Dict{Symbol,Any}(), pairs...)
+            $H(snapshot, id, Dict{Symbol,Any}(), pair, pairs...)
         end
 
         """
@@ -253,7 +256,7 @@ for H in [:Halo, :Subhalo]
                 io,
                 " at z = $(round(redshift(halo); sigdigits=4)) in $(halo.snapshot |> get_simulation |> get_name)",
             )
-            show_properties(io, mime, halo)
+            CosmoParticles.show_properties(io, mime, halo)
         end
     end |> eval
 end

@@ -317,26 +317,26 @@ This is not exported.
 function read_prop_simunits(::AbstractHalo, ::Symbol) end
 
 """
-    convert_halo_prop(val, prop::Symbol, sim::AbstractCosmoSimulation; units::Symbol, unitful::Bool)
+    convert_halo_prop!(val, prop::Symbol, sim::AbstractCosmoSimulation; units::Symbol, unitful::Bool)
 
-Returns the halo's property or properties converted from simulation units to the specified units.
-
-For the allowed values of `units` and `unitful`, see [`read_prop`](@ref).
-The passed value can be a scalar value (`Number`) or an array of values (`AbstractArray`).
-
-This is not exported.
-"""
-function convert_halo_prop(_, ::Symbol, ::AbstractCosmoSimulation) end
-
-
-"""
-    convert_particle_prop(val, prop::Symbol, sim::AbstractCosmoSimulation; units::Symbol, unitful::Bool)
-
-Returns the particles' property or properties converted from simulation units to the specified units.
+Returns the halo's property or properties converted in-place from simulation units to the specified units.
 
 For the allowed values of `units` and `unitful`, see [`read_prop`](@ref).
 The passed value can be a scalar value (`Number`) or an array of values (`AbstractArray`).
 
 This is not exported.
 """
-function convert_particle_prop(_, ::Symbol, ::AbstractCosmoSimulation) end
+function convert_halo_prop!(_, ::Symbol, ::AbstractCosmoSimulation) end
+
+
+"""
+    convert_particle_prop!(val, prop::Symbol, sim::AbstractCosmoSimulation; units::Symbol, unitful::Bool)
+
+Returns the particles' property or properties converted in-place from simulation units to the specified units.
+
+For the allowed values of `units` and `unitful`, see [`read_prop`](@ref).
+The passed value can be a scalar value (`Number`) or an array of values (`AbstractArray`).
+
+This is not exported.
+"""
+function convert_particle_prop!(_, ::Symbol, ::AbstractCosmoSimulation) end
