@@ -302,7 +302,7 @@ This function caches the value in simulation units and uses the cached value if 
 """
 function read_prop(halo::AbstractHalo, prop::Symbol; units::Symbol=:physical, unitful::Bool=false, kwargs...)
     val = haskey(halo.props, prop) ? halo.props[prop] : read_prop_simunits(halo, prop; kwargs...)
-    return convert_halo_prop!(val, prop, get_snapshot(halo); units, unitful)
+    return convert_halo_prop(val, prop, get_snapshot(halo); units, unitful)
 end
 
 """
@@ -317,16 +317,16 @@ This is not exported.
 function read_prop_simunits(::AbstractHalo, ::Symbol) end
 
 """
-    convert_halo_prop!(val, prop::Symbol, sim::AbstractSnapshot; units::Symbol, unitful::Bool)
+    convert_halo_prop(val, prop::Symbol, sim::AbstractSnapshot; units::Symbol, unitful::Bool)
 
-Returns the halo's property or properties converted in-place from simulation units to the specified units.
+Returns the halo's property or properties converted from simulation units to the specified units.
 
 For the allowed values of `units` and `unitful`, see [`read_prop`](@ref).
 The passed value can be a scalar value (`Number`) or an array of values (`AbstractArray`).
 
 This is not exported.
 """
-function convert_halo_prop!(_, ::Symbol, ::AbstractSnapshot) end
+function convert_halo_prop(_, ::Symbol, ::AbstractSnapshot) end
 
 
 """
