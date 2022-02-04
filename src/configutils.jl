@@ -126,6 +126,8 @@ end
 
 Returns the (in-place) property array converted from simulation to other units given by `units`.
 
+This is not exported.
+
 # Arguments
 - `prop::Symbol`: property name to be converted, this is used to look up conversion information from `simunits`
   and `propexp`
@@ -147,6 +149,8 @@ function convert_sim_to end
     convert_to_sim!(a, prop::Symbol, simunits::Dict, params::AbstractSnapParams; units=:physical, propexp)
 
 Returns the (in-place) property array converted from simulation to other units given by `units`.
+
+This is not exported.
 
 # Arguments
 - `prop::Symbol`: property name to be converted, this is used to look up conversion information from `simunits`
