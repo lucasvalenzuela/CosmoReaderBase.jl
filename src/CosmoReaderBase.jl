@@ -36,20 +36,30 @@ export
     Halo,
     Subhalo,
 
+    # Halos
+    AbstractHalos,
+    Halos,
+    Subhalos,
+
     # Halos and subhalos
     get_subhalos,
     get_halo,
     get_parent_subhalo,
+    get_main_subhalo,
+    is_main_subhalo,
 
     # Reading
     read_particles,
     read_particles!,
-    read_prop
+    read_prop,
+    read_halos,
+    read_subhalos
 
 include("cosmosims.jl")
 include("particlecollections.jl")
 include("halos.jl")
 include("reading.jl")
+include("readingsubfind.jl")
 include("configutils.jl")
 
 end

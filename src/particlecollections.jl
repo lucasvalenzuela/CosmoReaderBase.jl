@@ -17,7 +17,7 @@ CosmoParticles.redshift(pc::AbstractSimulationParticleCollection) = redshift(get
 
 
 """
-    struct SimulationParticleCollection{AS<:AbstractSnapshot,AP<:AbstractParticles} <: AbstractParticleCollection{AP}
+    struct SimulationParticleCollection{AS<:AbstractSnapshot,AP<:AbstractParticles} <: AbstractSimulationParticleCollection{AP}
         snapshot::AS
         particles::Dict{Symbol,AP}
     end
@@ -25,7 +25,7 @@ CosmoParticles.redshift(pc::AbstractSimulationParticleCollection) = redshift(get
 Particle collection belonging to a snapshot of a cosmological simulation.
 """
 struct SimulationParticleCollection{AS<:AbstractSnapshot,AP<:AbstractParticles} <:
-       AbstractParticleCollection{AP}
+       AbstractSimulationParticleCollection{AS,AP}
     snapshot::AS
     particles::Dict{Symbol,AP}
 end
@@ -249,9 +249,13 @@ for H in [:Halo, :Subhalo]
             end
         end
 
+        function Base.show(io::IO, halo::$H)
+            print(io, $(String(H)), " ", halo.id)
+        end
+
         function Base.show(io::IO, mime::MIME"text/plain", halo::$H)
             printstyled(io, $(String(H)); bold=true)
-            print(" ", halo.id)
+            print(io, " ", halo.id)
             println(
                 io,
                 " at z = $(round(redshift(halo); sigdigits=4)) in $(halo.snapshot |> get_simulation |> get_name)",

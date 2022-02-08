@@ -181,14 +181,14 @@ end
 
 function read_particles!(
     halo::AbstractHalo,
-    pc::AbstractSimulationParticleCollection,
+    pc::AbstractParticleCollection,
     typeprops::Union{AbstractVector{<:Tuple},Nothing}=nothing;
     shift_to_center::Bool=false,
     units::Symbol=:physical,
     unitful::Bool=false,
     posprop::Symbol=:pos,
 )
-    ids = read_particle_ids(halo)
+    ids = read_particle_ids(halo) |> sort!
     copy!(halo, filter(pc; ids, affect=typeprops))
 
     # shift according to halo center
@@ -204,7 +204,7 @@ end
 function read_particles!(
     halo::AbstractHalo,
     pc::AbstractSimulationParticleCollection,
-    typeprops::AbstractVector{<:Tuple},
+    typeprops::Union{AbstractVector{<:Tuple},Nothing},
     radius::Union{Number,Symbol};
     rscale::Real=1,
     shift_to_center::Bool=false,
@@ -239,7 +239,7 @@ function read_particles!(
     pc_halo = filter(pc, CosmoHypercube(centerpos_new, r); affect=typeprops)
 
     if !readall
-        ids = read_particle_ids(halo)
+        ids = read_particle_ids(halo) |> sort!
         filter!(pc_halo; ids)
     end
 
