@@ -57,7 +57,7 @@ end
 Base.copy(h::AH) where {AH<:AbstractHalos} = AH(h.snapshot, h.props)
 Base.empty(h::AH) where {AH<:AbstractHalos} = AH(h.snapshot, empty(h.props))
 Base.:(==)(h1::AH, h2::AH) where {AH<:AbstractHalos} =
-    h1.snapshot == h2.snaphost && isequal(h1.props, h2.props)
+    h1.snapshot == h2.snapshot && isequal(h1.props, h2.props)
 
 """
     get_snapshot(h::AbstractHalos)
