@@ -5,6 +5,7 @@ version = "0.1.0"
 
 [deps]
 CosmoParticles = "b2fead7a-f6ae-4e5b-9c3d-9b85ace3042d"
+Cosmology = "76746363-e552-5dba-9a5a-cef6fa9cc5ab"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]

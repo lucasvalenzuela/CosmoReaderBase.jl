@@ -18,7 +18,7 @@ Subtypes have to implement the following methods:
 - [`get_first_snapshot`](@ref)
 - [`get_last_snapshot`](@ref)
 - [`snapshots`](@ref)
-- [`get_cosmology`](@ref)
+- [`Cosmology.cosmology`](@ref)
 - [`get_name`](@ref)
 """
 abstract type AbstractCosmoSimulation end
@@ -75,13 +75,13 @@ Returns an iterator over the snapshots.
 function snapshots(::AbstractCosmoSimulation) end
 
 """
-    get_cosmology(sim::AbstractCosmoSimulation) -> Cosmology.AbstractCosmology
+    Cosmology.cosmology(sim::AbstractCosmoSimulation) -> Cosmology.AbstractCosmology
 
 Returns the cosmology associated with the simulation.
 
 See [Cosmology.jl](https://github.com/JuliaAstro/Cosmology.jl).
 """
-function get_cosmology(::AbstractCosmoSimulation) end
+function cosmology(::AbstractCosmoSimulation) end
 
 """
     isperiodic(sim::AbstractCosmoSimulation) -> Bool
@@ -226,13 +226,13 @@ Returns the redshift of the snapshot.
 function CosmoParticles.redshift(::AbstractSnapshot) end
 
 """
-    get_cosmology(snapshot::AbstractSnapshot) -> Cosmology.AbstractCosmology
+    Cosmology.cosmology(snapshot::AbstractSnapshot) -> Cosmology.AbstractCosmology
 
 Returns the cosmology associated with the simulation of the snapshot.
 
 See [Cosmology.jl](https://github.com/JuliaAstro/Cosmology.jl).
 """
-get_cosmology(s::AbstractSnapshot) = get_cosmology(get_simulation(s))
+cosmology(s::AbstractSnapshot) = cosmology(get_simulation(s))
 
 """
     boxcorners(snapshot::AbstractSnapshot) -> Vector, Vector

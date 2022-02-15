@@ -1,5 +1,6 @@
 module CosmoReaderBase
 
+import Cosmology: cosmology
 using CosmoParticles
 using Unitful
 
@@ -14,7 +15,7 @@ export
     get_first_snapshot,
     get_last_snapshot,
     snapshots,
-    get_cosmology,
+    cosmology,
     isperiodic,
     boxcorners,
     boxlengths,
