@@ -86,3 +86,19 @@ function Base.show(io::IO, mime::MIME"text/plain", h::AbstractHalos)
     println(io, " at z = $(round(redshift(h); sigdigits=4)) in $(h.snapshot |> get_simulation |> get_name)")
     CosmoParticles.show_properties(io, mime, h)
 end
+
+
+function Base.getindex(h::Halos, index::Integer)
+    @assert haskey(h, :id)
+    return Halo(h.snapshot, h.id[index])
+end
+
+function Base.getindex(h::Subhalos, index::Integer)
+    @assert haskey(h, :id)
+    return Subhalo(h.snapshot, h.id[index])
+end
+
+Base.length(h::AbstractHalos) = length(h.id)
+Base.lastindex(h::AbstractHalos) = lastindex(h.id)
+
+Base.iterate(h::AbstractHalos, state=1) = state > length(h.id) ? nothing : (h[state], state + 1)
