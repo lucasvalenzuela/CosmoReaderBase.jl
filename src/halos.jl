@@ -38,15 +38,39 @@ end
 
 
 
+"""
+    abstract type AbstractHalos <: AbstractParticles end
+
+Abstract type for lists of halo properties.
+"""
 abstract type AbstractHalos <: AbstractParticles end
 
 for H in [:Halos, :Subhalos]
     quote
+        """
+            struct $($(String(H))){ACS} <: AbstractHalos where {ACS<:AbstractCosmoSimulation}
+                snapshot::AbstractSnapshot{ACS}
+                props::Dict{Symbol,Any}
+            end
+
+        Property list of $($(lowercase(String(H)))) at a given `snapshot`.
+
+        See the documentation of 
+        [`AbstractParticles`](https://lucasvalenzuela.github.io/CosmoParticles.jl/stable/particles/)
+        for how to access and set the properties.
+        """
         struct $H{ACS} <: AbstractHalos where {ACS<:AbstractCosmoSimulation}
             snapshot::AbstractSnapshot{ACS}
             props::Dict{Symbol,Any}
         end
 
+        """
+            $($(String(H)))(snapshot::AbstractSnapshot[, pairs::Pair...])
+
+        Create a [`$($(String(H)))`](@ref) object at the given `snapshot` and pairs of `Symbol` to the property
+        values. These are passed to the underlying `Dict`. If no pairs are passed to the method, an empty `Dict`
+        is created.
+        """
         $H(snapshot::AbstractSnapshot) = $H(snapshot, Dict{Symbol,Any}())
         $H(snapshot::AbstractSnapshot, pairs::Pair...) = $H(snapshot, Dict{Symbol,Any}(pairs...))
 

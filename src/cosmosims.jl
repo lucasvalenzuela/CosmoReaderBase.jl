@@ -19,8 +19,14 @@ Subtypes have to implement the following methods:
 - [`get_last_snapshot`](@ref)
 - [`snapshots`](@ref)
 - [`Cosmology.cosmology`](@ref)
+- [`isperiodic`](@ref)
+- [`boxcorners`](@ref)
+- [`boxlengths`](@ref)
 - [`get_name`](@ref)
+- [`get_config`](@ref): if `config` is not a field
+- [`get_dir`](@ref): if `dir` is not a field
 """
+
 abstract type AbstractCosmoSimulation end
 
 """
@@ -267,7 +273,12 @@ Returns a vector of the side lengths along the three axes.
 - `unitful::Bool=false`: whether unitful units should be added to the properties or not. This is ignored if
   `units=:sim`.
 """
-function boxlengths(s::AbstractSnapshot; kwargs...)
-    corners = boxcorners(s; kwargs...)
-    return corners[2] .- corners[1]
+function boxlengths(s::AbstractSnapshot; units::Symbol=:physical, unitful::Bool=false)
+    sim = get_simulation(s)
+    if units === :physical
+        a = 1 / (1 + redshift(s))
+        return boxlengths(sim; units=:comoving, unitful) * a
+    else
+        return boxlengths(sim; units, unitful)
+    end
 end

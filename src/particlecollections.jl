@@ -132,32 +132,59 @@ This is not exported.
 """
 get_id(halo::AbstractHalo) = halo.id
 
+"""
+    struct Halo{AS<:AbstractSnapshot,AP<:AbstractParticles,T} <: AbstractHalo{AS,AP,T}
+        snapshot::AS
+        id::T
+        props::Dict{Symbol,Any}
+        particles::Dict{Symbol,AP}
+    end
+
+A Halo's particle collection belonging to a snapshot of a cosmological simulation.
+
+Individual properties of the Halo can be saved in `props`. The reading routines
+will use `props` to save properties in simulation units. To get the values converted to units,
+[`read_prop`](@ref) should be used.
+
+The following methods have to be implemented for `Halo{<:AbstractSnapshot}`:
+- [`get_subhalos`](@ref)
+- [`get_main_subhalo`](@ref)
+"""
+struct Halo{AS<:AbstractSnapshot,AP<:AbstractParticles,T} <: AbstractHalo{AS,AP,T}
+    snapshot::AS
+    id::T
+    props::Dict{Symbol,Any}
+    particles::Dict{Symbol,AP}
+end
+
+"""
+    struct Subhalo{AS<:AbstractSnapshot,AP<:AbstractParticles,T} <: AbstractHalo{AS,AP,T}
+        snapshot::AS
+        id::T
+        props::Dict{Symbol,Any}
+        particles::Dict{Symbol,AP}
+    end
+
+A Subhalo's particle collection belonging to a snapshot of a cosmological simulation.
+
+Individual properties of the Subhalo can be saved in `props`. The reading routines
+will use `props` to save properties in simulation units. To get the values converted to units,
+[`read_prop`](@ref) should be used.
+
+The following methods have to be implemented for `Subhalo{<:AbstractSnapshot}`:
+- [`get_halo`](@ref)
+- [`is_main_subhalo`](@ref)
+- [`get_parent_subhalo`](@ref) if parent subhalos exist
+"""
+struct Subhalo{AS<:AbstractSnapshot,AP<:AbstractParticles,T} <: AbstractHalo{AS,AP,T}
+    snapshot::AS
+    id::T
+    props::Dict{Symbol,Any}
+    particles::Dict{Symbol,AP}
+end
 
 for H in [:Halo, :Subhalo]
     quote
-        """
-            struct $($(String(H))){AS<:AbstractSnapshot,AP<:AbstractParticles,T} <: AbstractHalo{AS,AP,T}
-                snapshot::AS
-                id::T
-                props::Dict{Symbol,Any}
-                particles::Dict{Symbol,AP}
-            end
-
-        A $($(lowercase(String(H))))'s particle collection belonging to a snapshot of a cosmological simulation.
-
-        Individual properties of the $($(lowercase(String(H)))) can be saved in `props`. The reading routines
-        will use `props` to save properties in simulation units. To get the values converted to units,
-        [`read_prop`](@ref) should be used.
-        """
-        struct $H{AS<:AbstractSnapshot,AP<:AbstractParticles,T} <: AbstractHalo{AS,AP,T}
-            snapshot::AS
-            id::T
-            props::Dict{Symbol,Any}
-            particles::Dict{Symbol,AP}
-        end
-
-
-
         """
             $($(String(H)))([::Type{AP}=Particles,] snapshot::AbstractSnapshot, id[, props]) where {AP<:AbstractParticles}
 
@@ -213,7 +240,8 @@ for H in [:Halo, :Subhalo]
         [`Particles`](https://lucasvalenzuela.github.io/CosmoParticles.jl/stable/particles/#CosmoParticles.Particles).
 
         The `Dict` keys are taken from the
-        [`Particles`](https://lucasvalenzuela.github.io/CosmoParticles.jl/stable/particles/#CosmoParticles.Particles) type.
+        [`Particles`](https://lucasvalenzuela.github.io/CosmoParticles.jl/stable/particles/#CosmoParticles.Particles)
+        type.
 
         # Example
         ```julia

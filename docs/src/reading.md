@@ -4,7 +4,7 @@ CurrentModule = CosmoReaderBase
 
 # Reading
 
-## Public API
+## Reading 
 
 ```@docs
 read_particles
@@ -12,6 +12,8 @@ read_particles!
 read_particles_in_cuboid
 read_particle_ids
 read_prop
+read_halos
+read_subhalos
 ```
 
 ## Developer's API

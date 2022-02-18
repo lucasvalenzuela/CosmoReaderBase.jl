@@ -8,6 +8,11 @@ CurrentModule = CosmoReaderBase
 cosmological simulations and uses the [`CosmoParticles.jl`](https://github.com/lucasvalenzuela/CosmoParticles.jl)
 package for working with particle data.
 
+## Implementing Packages
+
+Currently, only [`GadgetReader.jl`](https://gitlab.com/juliacosmosims/GadgetReader.jl) implements the API for
+simulations written in the Gadget 2 format.
+
 ## Installation
 
 This package is only available through the local registry
