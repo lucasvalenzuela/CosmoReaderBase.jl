@@ -43,7 +43,7 @@ Some packages (like `GadgetReader`) may allow additional keyword arguments to fo
 
 ## Reading Information from a Simulation or Snapshot
 
-Some information is available through some methods on simulations and snapshots (see [Simulations](@ref) for more
+Some information is available through some methods on simulations and snapshots (see [Simulation](@ref) for more
 details):
 
 ```julia
