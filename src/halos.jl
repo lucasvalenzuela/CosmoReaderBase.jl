@@ -48,8 +48,8 @@ abstract type AbstractHalos <: AbstractParticles end
 for H in [:Halos, :Subhalos]
     quote
         """
-            struct $($(String(H))){ACS} <: AbstractHalos where {ACS<:AbstractCosmoSimulation}
-                snapshot::AbstractSnapshot{ACS}
+            struct $($(String(H))){AS} <: AbstractHalos where {AS<:AbstractSnapshot}
+                snapshot::AS
                 props::Dict{Symbol,Any}
             end
 
@@ -59,8 +59,8 @@ for H in [:Halos, :Subhalos]
         [`AbstractParticles`](https://lucasvalenzuela.github.io/CosmoParticles.jl/stable/particles/)
         for how to access and set the properties.
         """
-        struct $H{ACS} <: AbstractHalos where {ACS<:AbstractCosmoSimulation}
-            snapshot::AbstractSnapshot{ACS}
+        struct $H{AS} <: AbstractHalos where {AS<:AbstractSnapshot}
+            snapshot::AS
             props::Dict{Symbol,Any}
         end
 

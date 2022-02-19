@@ -18,7 +18,7 @@ Subtypes have to implement the following methods:
 - [`get_first_snapshot`](@ref)
 - [`get_last_snapshot`](@ref)
 - [`snapshots`](@ref)
-- [`Cosmology.cosmology`](@ref)
+- [`cosmology`](@ref)
 - [`isperiodic`](@ref)
 - [`boxcorners`](@ref)
 - [`boxlengths`](@ref)
@@ -75,7 +75,10 @@ function get_last_snapshot(::AbstractCosmoSimulation) end
 """
     snapshots(sim::AbstractCosmoSimulation)
 
-Returns an iterator over the snapshots.
+Returns an iterator over the snapshots from earliest to latest in time.
+
+Keyword Arguments
+- `rev::Bool=false`: if `true`, the latest snapshots will be iterated over first
 """
 function snapshots(::AbstractCosmoSimulation) end
 
@@ -244,7 +247,7 @@ cosmology(s::AbstractSnapshot) = cosmology(get_simulation(s))
 
 Returns a tuple of the lower left and upper right corners.
 
-# Keyword arguments
+# Keyword Arguments
 - `units::Symbol=:physical`: has to be `:sim`, `:physical`, or `:comoving` for simulation, physical, or comoving
   units, respectively
 - `unitful::Bool=false`: whether unitful units should be added to the properties or not. This is ignored if
@@ -266,7 +269,7 @@ end
 
 Returns a vector of the side lengths along the three axes.
 
-# Keyword arguments
+# Keyword Arguments
 - `units::Symbol=:physical`: has to be `:sim`, `:physical`, or `:comoving` for simulation, physical, or comoving
   units, respectively
 - `unitful::Bool=false`: whether unitful units should be added to the properties or not. This is ignored if

@@ -15,6 +15,7 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Quick Start" => "quickstart.md",
         "Simulation" => "simulation.md",
         "Particle Collections" => "particlecollections.md",
         "Reading" => "reading.md",

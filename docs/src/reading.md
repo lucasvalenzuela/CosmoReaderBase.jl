@@ -4,13 +4,18 @@ CurrentModule = CosmoReaderBase
 
 # Reading
 
-## Reading 
+## Reading Particles
 
 ```@docs
 read_particles
 read_particles!
 read_particles_in_cuboid
 read_particle_ids
+```
+
+## Reading Halos
+
+```@docs
 read_prop
 read_halos
 read_subhalos
