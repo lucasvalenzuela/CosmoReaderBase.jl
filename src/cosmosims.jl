@@ -26,7 +26,6 @@ Subtypes have to implement the following methods:
 - [`get_config`](@ref): if `config` is not a field
 - [`get_dir`](@ref): if `dir` is not a field
 """
-
 abstract type AbstractCosmoSimulation end
 
 """

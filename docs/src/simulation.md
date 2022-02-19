@@ -20,7 +20,7 @@ get_nearest_snapshot
 get_first_snapshot
 get_last_snapshot
 snapshots
-Cosmology.cosmology(::AbstractCosmoSimulation)
+cosmology(::AbstractCosmoSimulation)
 isperiodic
 boxcorners(::AbstractCosmoSimulation)
 boxlengths(::AbstractCosmoSimulation)
@@ -46,7 +46,7 @@ CosmoReaderBase.get_config(::AbstractSnapshot)
 prev_snapshot
 next_snapshot
 CosmoParticles.redshift
-Cosmology.cosmology(::AbstractSnapshot)
+cosmology(::AbstractSnapshot)
 boxcorners(s::AbstractSnapshot)
 boxlengths(::AbstractSnapshot)
 ```
