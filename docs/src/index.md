@@ -15,6 +15,9 @@ simulations written in the Gadget 2 format.
 
 ## Installation
 
+Note that this package usually does not have to be directly installed by the user, instead install any of the
+implementing packages.
+
 This package is only available through the local registry
 [CosmoSimsRegistry](https://gitlab.com/juliacosmosims/CosmoSimsRegistry), for which access first needs to be
 granted. It is recommended that an ssh key pair is created with the following command (which can be saved
