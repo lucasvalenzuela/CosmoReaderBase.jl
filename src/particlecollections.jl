@@ -124,7 +124,7 @@ The halo has an id of type `T`.
 abstract type AbstractHalo{AS,AP,T} <: AbstractSimulationParticleCollection{AS,AP} end
 
 """
-    get_id(halo::AbstractHalo)
+    CosmoReaderBase.get_id(halo::AbstractHalo)
 
 Returns the halo's id.
 
@@ -172,7 +172,7 @@ will use `props` to save properties in simulation units. To get the values conve
 [`read_prop`](@ref) should be used.
 
 The following methods have to be implemented for `Subhalo{<:AbstractSnapshot}`:
-- [`get_halo`](@ref)
+- [`get_halo(::AbstractHalo)`](@ref)
 - [`is_main_subhalo`](@ref)
 - [`get_parent_subhalo`](@ref) if parent subhalos exist
 """

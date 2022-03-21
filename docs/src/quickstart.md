@@ -173,7 +173,7 @@ read_prop(halo, :rvir; units=:physical, unitful=false)
 The halos and subhalos in the hierarchy of halos can be obtained in the following ways:
 
 Taking a halo as argument:
-- [`get_halo`](@ref)
+- [`get_halo(::AbstractHalo)`](@ref)
 - [`get_main_subhalo`](@ref)
 
 Taking a subhalo as argument:
@@ -211,3 +211,34 @@ Halos can also be read in by ID:
 ids    # vector of halo IDs
 halos = read_halos(snapshot, [:id, :pos, :mvir], ids)
 ```
+
+## Working with Merger Trees
+
+Some simulations provide a merger tree to track the subhalos and/or halos back through time.
+To easily check whether a tree is provided, use [`has_tree(sim)`](@ref) and if it returns `true` then load it
+with [`get_tree(sim)`](@ref).
+
+Each subhalo (and/or halo) of a simulation has a counterpart halo node in the merger tree. To switch between the
+two types, use [`get_halo::AbstractMergerTreeNode`](@ref), [`get_subhalo::AbstractMergerTreeNode`](@ref), and
+[`get_tree_node`](@ref). Generally, a limited set of properties are available for halo nodes, which can be
+checked with [`has_prop(::AbstractMergerTreeNode, prop)`](@ref) and loaded with [`read_prop(::AbstractMergerTreeNode, prop)`].
+
+The following methods can be used to traverse the merger tree, using either the halo/subhalo objects or the halo
+nodes as arguments (see [Traversing](@ref) for more details):
+- `first_progenitor`
+- `first_progenitor_at`
+- `descendant_at`
+- `descendant`
+- `next_progenitor_sibling`
+- `prev_progenitor_sibling`
+- `first_progenitor_sibling`
+
+Finally, there are also some iterators to traverse the trees, e.g. in for-loops (see [Traverse Iteration](@ref)
+for more details). Traversing the halo node objects is faster if only properties directly available for these
+are needed.
+- `first_progenitors`
+- `first_progenitors_and_self`
+- `descendants`
+- `descendants_and_self`
+- `direct_progenitors`
+- `progenitor_siblings`

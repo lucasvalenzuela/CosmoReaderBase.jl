@@ -38,7 +38,7 @@ CosmoParticles.translate_periodic!
 CosmoParticles.translate_periodic_to_center
 CosmoParticles.translate_periodic_to_center!
 get_subhalos
-get_halo
+get_halo(::AbstractHalo)
 get_parent_subhalo
 get_main_subhalo
 is_main_subhalo

@@ -16,7 +16,7 @@ read_particle_ids
 ## Reading Halos
 
 ```@docs
-read_prop
+read_prop(::AbstractHalo)
 read_halos
 read_subhalos
 ```
