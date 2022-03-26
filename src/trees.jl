@@ -2,6 +2,9 @@
     abstract type AbstractMergerTree{S} end
 
 Abstract type representing the merger tree of a simulation `S<:AbstractCosmoSimulation`.
+
+Subtypes have to implement the following methods:
+- [`get_simulation(::AbstractMergerTree)`](@ref): if `simulation` is not a field
 """
 abstract type AbstractMergerTree{S} end
 
@@ -9,6 +12,30 @@ abstract type AbstractMergerTree{S} end
     abstract type AbstractMergerTreeNode end
 
 Abstract type representing a halo in the merger tree of a simulation.
+
+Subtypes have to implement the following methods:
+- [`has_prop(::AbstractMergerTreeNode)`](@ref)
+- [`read_prop_simunits(::AbstractMergerTreeNode, ::Symbol)`](@ref): not exported
+- [`convert_halonode_prop`](@ref): not exported
+- [`get_halo(::AbstractMergerTreeNode)`](@ref)
+- [`get_subhalo(::AbstractMergerTreeNode)`](@ref)
+- [`get_tree_node(::Type{<:AbstractMergerTree}, ::Subhalo)`](@ref)
+- [`get_tree_node(::Type{<:AbstractMergerTree}, ::Halo)`](@ref): if the tree represents `Halo`s
+- [`first_progenitor`](@ref)
+- [`first_progenitor_at`](@ref)
+- [`descendant`](@ref)
+- [`next_progenitor_sibling`](@ref)
+- [`prev_progenitor_sibling`](@ref)
+- [`first_progenitor_sibling`](@ref)
+- [`first_progenitors`](@ref)
+- [`first_progenitors_and_self`](@ref)
+- [`descendants`](@ref)
+- [`descendant_at`](@ref)
+- [`descendants_and_self`](@ref)
+- [`direct_progenitors`](@ref)
+- [`progenitor_siblings`](@ref)
+- [`get_tree(::AbstractMergerTreeNode)`](@ref): if `tree` is not a field
+- [`get_snapshot(::AbstractMergerTreeNode)`](@ref): if `snapshot` is not a field
 """
 abstract type AbstractMergerTreeNode end
 

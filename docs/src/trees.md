@@ -50,6 +50,10 @@ progenitor_siblings
 
 ## Developer's API
 
+In the default implementation, only subhalos are assumed to have equivalent halo nodes in a merger tree.
+If this is not the case, [`get_halo[::AbstractMergerTreeNode]`](@ref) and [`get_tree_node(::Halo)`](@ref) have to
+be implemented.
+
 ```@docs
 read_prop_simunits(::AbstractMergerTreeNode, prop)
 convert_halonode_prop
