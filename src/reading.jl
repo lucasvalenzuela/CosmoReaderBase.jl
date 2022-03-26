@@ -171,7 +171,7 @@ function read_particles!(
     )
 
     if !readall
-        ids = read_particle_ids(halo)
+        ids = read_particle_ids(halo) |> sort!
         filter!(pc; ids)
     end
 
@@ -236,7 +236,7 @@ function read_particles!(
     end
 
     centerpos_new = shift_to_center ? zeros(length(centerpos)) : centerpos
-    pc_halo = filter(pc, CosmoHypercube(centerpos_new, r); affect=typeprops)
+    pc_halo = filter(pc, CosmoHypersphere(centerpos_new, r); affect=typeprops)
 
     if !readall
         ids = read_particle_ids(halo) |> sort!
