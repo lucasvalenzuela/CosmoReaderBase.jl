@@ -1,13 +1,14 @@
 """
     read_particles(snapshot::AbstractSnapshot[, type::Symbol[, props]]) -> SimulationParticleCollection
-    read_particles(snapshot::AbstractSnapshot, typeprops::AbstractVector{<:Tuple}) -> SimulationParticleCollection
+    read_particles(snapshot::AbstractSnapshot, typeprops::AbstractVector{<:Union{Tuple,Pair}}) -> SimulationParticleCollection
 
 Returns particles in a snapshot with all or the specified properties.
 
 If the particle type is given, only the particles of that type are read, and if one or more properties are passed
 through `props` (as a Symbol or AbstractVector of Symbols), only those properties are read.
 
-The value of `typeprops` is a vector of tuples in the format of `[(:dm, [:pos, :vel]), (:gas, [:pos, :mass])]`.
+The value of `typeprops` is a vector of tuples or pairs in the format of
+`[(:dm, [:pos, :vel]), (:gas, [:pos, :mass])]` or `[:dm => [:pos, :vel], :gas => [:pos, :mass]]`.
 
 # Keyword arguments
 - `units::Symbol=:physical`: has to be `:sim`, `:physical`, or `:comoving` for simulation, physical, or comoving
@@ -21,9 +22,9 @@ function read_particles(::AbstractSnapshot) end
 # to implement:
 # read_particles(snapshot::AbstractSnapshot)
 # read_particles(snapshot::AbstractSnapshot, type::Symbol)
-# read_particles(snapshot::AbstractSnapshot, typeprops::AbstractVector{<:Tuple})
-# read_particles(snapshot::AbstractSnapshot, typeprops::AbstractVector{<:Tuple}, ids::AbstractVector)
-# read_particles_in_cuboid(snapshot::AbstractSnapshot, typeprops::AbstractVector{<:Tuple}, lowerleft::AbstractArray, upperright::AbstractArray)
+# read_particles(snapshot::AbstractSnapshot, typeprops::AbstractVector{<:Union{Tuple,Pair}})
+# read_particles(snapshot::AbstractSnapshot, typeprops::AbstractVector{<:Union{Tuple,Pair}}, ids::AbstractVector)
+# read_particles_in_cuboid(snapshot::AbstractSnapshot, typeprops::AbstractVector{<:Union{Tuple,Pair}}, lowerleft::AbstractArray, upperright::AbstractArray)
 
 function read_particles(snapshot::AbstractSnapshot, type::Symbol, prop::Symbol; kwargs...)
     read_particles(snapshot, [(type, [prop])]; kwargs...)
@@ -33,7 +34,7 @@ function read_particles(snapshot::AbstractSnapshot, type::Symbol, props::Abstrac
 end
 
 """
-    read_particles(snapshot::AbstractSnapshot, typeprops::AbstractVector{<:Tuple}, ids::AbstractVector[, centerpos, radius]) -> SimulationParticleCollection
+    read_particles(snapshot::AbstractSnapshot, typeprops::AbstractVector{<:Union{Tuple,Pair}}, ids::AbstractVector[, centerpos, radius]) -> SimulationParticleCollection
 
 
 Returns the particles with the given IDs in a snapshot with the specified properties.
@@ -51,11 +52,11 @@ read in first and particles outside the radius are read in.
 
 For the format of `typeprops` and further possible keywords, see [`read_particles(::AbstractSnapshot)`](@ref).
 """
-function read_particles(::AbstractSnapshot, ::AbstractVector{<:Tuple}, ::AbstractVector) end
+function read_particles(::AbstractSnapshot, ::AbstractVector{<:Union{Tuple,Pair}}, ::AbstractVector) end
 
 function read_particles(
     snapshot::AbstractSnapshot,
-    typeprops::AbstractVector{<:Tuple},
+    typeprops::AbstractVector{<:Union{Tuple,Pair}},
     ids::AbstractVector,
     centerpos::AbstractVector,
     radius::Number;
@@ -67,8 +68,8 @@ function read_particles(
 end
 
 """
-    read_particles(snapshot::AbstractSnapshot, typeprops::AbstractVector{<:Tuple}, geo::AbstractCosmoGeometry) -> SimulationParticleCollection
-    read_particles(snapshot::AbstractSnapshot, typeprops::AbstractVector{<:Tuple}, geo::CosmoHyperrectangle; exact=false) -> SimulationParticleCollection
+    read_particles(snapshot::AbstractSnapshot, typeprops::AbstractVector{<:Union{Tuple,Pair}}, geo::AbstractCosmoGeometry) -> SimulationParticleCollection
+    read_particles(snapshot::AbstractSnapshot, typeprops::AbstractVector{<:Union{Tuple,Pair}}, geo::CosmoHyperrectangle; exact=false) -> SimulationParticleCollection
 
 Returns the particles within a given volume in a snapshot with the specified properties.
 
@@ -86,7 +87,7 @@ For further possible keywords, see [`read_particles(::AbstractSnapshot)`](@ref).
 """
 function read_particles(
     snapshot::AbstractSnapshot,
-    typeprops::AbstractVector{<:Tuple},
+    typeprops::AbstractVector{<:Union{Tuple,Pair}},
     geo::AbstractCosmoGeometry;
     posprop=:pos,
     kwargs...,
@@ -99,7 +100,7 @@ end
 
 function read_particles(
     snapshot::AbstractSnapshot,
-    typeprops::AbstractVector{<:Tuple},
+    typeprops::AbstractVector{<:Union{Tuple,Pair}},
     geo::CosmoHyperrectangle;
     posprop=:pos,
     exact=false,
@@ -112,8 +113,8 @@ function read_particles(
 end
 
 """
-    read_particles!(halo::AbstractHalo, typeprops::AbstractVector{<:Tuple}[, radius])
-    read_particles!(halo::AbstractHalo, pc::AbstractSimulationParticleCollection[, typeprops::AbstractVector{<:Tuple}][, radius])
+    read_particles!(halo::AbstractHalo, typeprops::AbstractVector{<:Union{Tuple,Pair}}[, radius])
+    read_particles!(halo::AbstractHalo, pc::AbstractSimulationParticleCollection[, typeprops::AbstractVector{<:Union{Tuple,Pair}}][, radius])
 
 Returns the particles within the given halo with the specified properties.
 
@@ -139,7 +140,7 @@ Particles are shifted across the box borders if the halo reaches across the bord
 
 For further possible keywords, see [`read_particles(::AbstractSnapshot)`](@ref).
 """
-function read_particles!(halo::AbstractHalo, typeprops::AbstractVector{<:Tuple}; kwargs...)
+function read_particles!(halo::AbstractHalo, typeprops::AbstractVector{<:Union{Tuple,Pair}}; kwargs...)
     pc = read_particles(get_snapshot(halo), typeprops, read_particle_ids(halo); kwargs...)
     copy!(halo, pc)
     return halo
@@ -150,7 +151,7 @@ _get_val_or_halo_prop(prop::Symbol, halo, units, unitful) = read_prop(halo, prop
 
 function read_particles!(
     halo::AbstractHalo,
-    typeprops::AbstractVector{<:Tuple},
+    typeprops::AbstractVector{<:Union{Tuple,Pair}},
     radius::Union{Number,Symbol};
     rscale::Real=1,
     units::Symbol=:physical,
@@ -182,7 +183,7 @@ end
 function read_particles!(
     halo::AbstractHalo,
     pc::AbstractParticleCollection,
-    typeprops::Union{AbstractVector{<:Tuple},Nothing}=nothing;
+    typeprops::Union{AbstractVector{<:Union{Tuple,Pair}},Nothing}=nothing;
     shift_to_center::Bool=false,
     units::Symbol=:physical,
     unitful::Bool=false,
@@ -204,7 +205,7 @@ end
 function read_particles!(
     halo::AbstractHalo,
     pc::AbstractSimulationParticleCollection,
-    typeprops::Union{AbstractVector{<:Tuple},Nothing},
+    typeprops::Union{AbstractVector{<:Union{Tuple,Pair}},Nothing},
     radius::Union{Number,Symbol};
     rscale::Real=1,
     shift_to_center::Bool=false,
@@ -257,7 +258,7 @@ function read_particles!(
 end
 
 """
-    read_particles_in_cuboid(snapshot::AbstractSnapshot, typeprops::AbstractVector{<:Tuple}, lowerleft::AbstractArray, upperright::AbstractArray) -> SimulationParticleCollection
+    read_particles_in_cuboid(snapshot::AbstractSnapshot, typeprops::AbstractVector{<:Union{Tuple,Pair}}, lowerleft::AbstractArray, upperright::AbstractArray) -> SimulationParticleCollection
 
 Returns the particles within the cuboid given by the lower left and upper right corner in a snapshot with the
 specified properties.
@@ -272,7 +273,7 @@ This is not exported.
 """
 function read_particles_in_cuboid(
     ::AbstractSnapshot,
-    ::AbstractVector{<:Tuple},
+    ::AbstractVector{<:Union{Tuple,Pair}},
     ::AbstractArray,
     ::AbstractArray,
 ) end
