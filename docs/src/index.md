@@ -21,7 +21,7 @@ implementing packages.
 This package is only available through the local registry
 [CosmoSimsRegistry](https://gitlab.com/juliacosmosims/CosmoSimsRegistry), for which access first needs to be
 granted. It is recommended that an ssh key pair is created with the following command (which can be saved
-as `id_rsa_github`, for example):
+as `id_rsa_gitlab`, for example):
 ```
 ssh-keygen -t rsa -b 4096 -m PEM
 ```
@@ -37,7 +37,7 @@ SSH_PUB_KEY_PATH=~/.ssh/id_rsa_gitlab.pub
 The package registry can be loaded from the Julia REPL with the Julia package manager:
 ```julia
 using Pkg
-pkg"registry add https://github.com/lucasvalenzuela/CosmoSimsRegistry"
+pkg"registry add https://gilab.com/juliacosmosims/CosmoSimsRegistry"
 ```
 This only needs to be done once per Julia installation.
 
