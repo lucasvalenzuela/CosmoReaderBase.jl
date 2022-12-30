@@ -29,7 +29,7 @@ function get_main_subhalo(::Halo) end
 """
     is_main_subhalo(subhalo::Subhalo)
 
-Returns if the subhalo is the main subhalo in the host halo.
+Returns true if the subhalo is the main subhalo in the host halo.
 """
 function is_main_subhalo(s::Subhalo)
     smain = get_main_subhalo(get_halo(s))
