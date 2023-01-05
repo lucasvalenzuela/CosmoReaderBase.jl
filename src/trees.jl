@@ -8,6 +8,8 @@ Subtypes have to implement the following methods:
 """
 abstract type AbstractMergerTree{S} end
 
+Base.broadcastable(tree::AbstractMergerTree) = Ref(tree)
+
 """
     abstract type AbstractMergerTreeNode end
 
@@ -38,6 +40,8 @@ Subtypes have to implement the following methods:
 - [`get_snapshot(::AbstractMergerTreeNode)`](@ref): if `snapshot` is not a field
 """
 abstract type AbstractMergerTreeNode end
+
+Base.broadcastable(node::AbstractMergerTreeNode) = Ref(node)
 
 """
     get_tree(halo::AbstractHalo) -> AbstractMergerTree

@@ -5,6 +5,8 @@ Abstract type for representing different configurations for cosmological simulat
 """
 abstract type AbstractCosmoReaderConfig end
 
+Base.broadcastable(config::AbstractCosmoReaderConfig) = Ref(config)
+
 """
     abstract type AbstractCosmoSimulation end
 
@@ -27,6 +29,8 @@ Subtypes have to implement the following methods:
 - [`get_dir`](@ref): if `dir` is not a field
 """
 abstract type AbstractCosmoSimulation end
+
+Base.broadcastable(sim::AbstractCosmoSimulation) = Ref(sim)
 
 """
     has_tree(sim::AbstractCosmoSimulation)
@@ -188,6 +192,8 @@ Subtypes have to implement the following methods:
 - [`get_snapshotid`](@ref) if `id` is not a field
 """
 abstract type AbstractSnapshot{ACS} end
+
+Base.broadcastable(s::AbstractSnapshot) = Ref(s)
 
 """
     get_simulation(snapshot::AbstractSnapshot) -> AbstractCosmoSimulation
