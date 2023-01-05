@@ -2,6 +2,8 @@
     abstract type AbstractCosmoReaderConfig end
 
 Abstract type for representing different configurations for cosmological simulations.
+
+This is not exported.
 """
 abstract type AbstractCosmoReaderConfig end
 
@@ -27,6 +29,8 @@ Subtypes have to implement the following methods:
 - [`get_name`](@ref)
 - [`get_config`](@ref): if `config` is not a field
 - [`get_dir`](@ref): if `dir` is not a field
+
+This is not exported.
 """
 abstract type AbstractCosmoSimulation end
 
@@ -190,6 +194,8 @@ Subtypes have to implement the following methods:
 - [`CosmoParticles.redshift`](@ref)
 - [`get_simulation`](@ref) if `sim` is not a field
 - [`get_snapshotid`](@ref) if `id` is not a field
+
+This is not exported.
 """
 abstract type AbstractSnapshot{ACS} end
 

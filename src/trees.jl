@@ -5,6 +5,8 @@ Abstract type representing the merger tree of a simulation `S<:AbstractCosmoSimu
 
 Subtypes have to implement the following methods:
 - [`get_simulation(::AbstractMergerTree)`](@ref): if `simulation` is not a field
+
+This is not exported.
 """
 abstract type AbstractMergerTree{S} end
 
@@ -38,6 +40,8 @@ Subtypes have to implement the following methods:
 - [`progenitor_siblings`](@ref)
 - [`get_tree(::AbstractMergerTreeNode)`](@ref): if `tree` is not a field
 - [`get_snapshot(::AbstractMergerTreeNode)`](@ref): if `snapshot` is not a field
+
+This is not exported.
 """
 abstract type AbstractMergerTreeNode end
 

@@ -42,6 +42,8 @@ end
     abstract type AbstractHalos <: AbstractParticles end
 
 Abstract type for lists of halo properties.
+
+This is not exported.
 """
 abstract type AbstractHalos <: AbstractParticles end
 

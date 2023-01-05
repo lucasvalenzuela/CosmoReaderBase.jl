@@ -3,6 +3,8 @@
 
 Abstract type representing a particle collection belonging to a `snapshot::AS<:AbstractSnapshot` with
 `particles::AP<:AbstractParticles`.
+
+This is not exported.
 """
 abstract type AbstractSimulationParticleCollection{AS,AP} <: AbstractParticleCollection{AP} end
 
@@ -120,6 +122,8 @@ Abstract type representing a halo's particle collection belonging to a `snapshot
 `particles::AP<:AbstractParticles`.
 
 The halo has an id of type `T`.
+
+This is not exported.
 """
 abstract type AbstractHalo{AS,AP,T} <: AbstractSimulationParticleCollection{AS,AP} end
 
