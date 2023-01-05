@@ -14,8 +14,6 @@ include("configutils.jl")
 
 export
     # Abstract simulation
-    AbstractCosmoReaderConfig, # TODO: remove exporting abstract types
-    AbstractCosmoSimulation,
     has_tree,
     get_tree,
     get_snapshot,
@@ -41,12 +39,10 @@ export
     # Particle Collections
     AbstractSimulationParticleCollection,
     SimulationParticleCollection,
-    AbstractHalo, # TODO: remove exporting abstract types
     Halo,
     Subhalo,
 
     # Halos
-    AbstractHalos,
     Halos,
     Subhalos,
 
