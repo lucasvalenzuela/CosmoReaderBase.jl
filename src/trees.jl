@@ -307,8 +307,14 @@ for func in [
     :first_progenitor_sibling,
 ]
     quote
-        $func(h::Halo) = get_halo($func(get_tree_node(h)))
-        $func(h::Subhalo) = get_subhalo($func(get_tree_node(h)))
+        function $func(h::Halo)
+            node = $func(get_tree_node(h))
+            return isnothing(node) ? nothing : get_halo(node)
+        end
+        function $func(h::Subhalo)
+            node = $func(get_tree_node(h))
+            return isnothing(node) ? nothing : get_subhalo(node)
+        end
     end |> eval
 end
 
