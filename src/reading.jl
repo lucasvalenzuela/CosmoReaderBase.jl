@@ -90,10 +90,15 @@ function read_particles(
     typeprops::AbstractVector{<:Union{Tuple,Pair}},
     geo::AbstractCosmoGeometry;
     posprop=:pos,
+    shift_to_center=false,
     kwargs...,
 )
     lowerleft, upperright = CosmoParticles.geometry_enclosing_corners(geo)
-    pc = read_particles_in_cuboid(snapshot, typeprops, lowerleft, upperright; kwargs...)
+    pc = read_particles_in_cuboid(snapshot, typeprops, lowerleft, upperright; shift_to_center, kwargs...)
+    if shift_to_center
+        negative_center = @. -1 // 2 * (lowerleft + upperright)
+        geo = translate(geo, negative_center)
+    end
     filter!(pc, geo, posprop)
     return pc
 end
@@ -103,11 +108,16 @@ function read_particles(
     typeprops::AbstractVector{<:Union{Tuple,Pair}},
     geo::CosmoHyperrectangle;
     posprop=:pos,
+    shift_to_center=false,
     exact=false,
     kwargs...,
 )
     lowerleft, upperright = CosmoParticles.geometry_enclosing_corners(geo)
-    pc = read_particles_in_cuboid(snapshot, typeprops, lowerleft, upperright; kwargs...)
+    pc = read_particles_in_cuboid(snapshot, typeprops, lowerleft, upperright; shift_to_center, kwargs...)
+    if shift_to_center
+        negative_center = @. -1 // 2 * (lowerleft + upperright)
+        geo = translate(geo, negative_center)
+    end
     exact && filter!(pc, geo, posprop)
     return pc
 end
