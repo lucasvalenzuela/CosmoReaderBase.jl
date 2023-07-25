@@ -150,8 +150,9 @@ Particles are shifted across the box borders if the halo reaches across the bord
 
 For further possible keywords, see [`read_particles(::AbstractSnapshot)`](@ref).
 """
-function read_particles!(halo::AbstractHalo, typeprops::AbstractVector{<:Union{Tuple,Pair}}; kwargs...)
-    pc = read_particles(get_snapshot(halo), typeprops, read_particle_ids(halo); kwargs...)
+function read_particles!(halo::AbstractHalo, typeprops::AbstractVector{<:Union{Tuple,Pair}}; shift_to_center::Bool=false, kwargs...)
+    pc = read_particles(get_snapshot(halo), typeprops, read_particle_ids(halo); shift_to_center, kwargs...)
+    halo.props[:shift_to_center] = shift_to_center
     copy!(halo, pc)
     return halo
 end
@@ -167,6 +168,7 @@ function read_particles!(
     units::Symbol=:physical,
     unitful::Bool=false,
     readall::Bool=false,
+    shift_to_center::Bool=false,
     kwargs...,
 )
     centerpos = read_prop(halo, :pos; units, unitful)
@@ -178,6 +180,7 @@ function read_particles!(
         centerpos .+ r;
         units,
         unitful,
+        shift_to_center,
         kwargs...,
     )
 
@@ -185,6 +188,8 @@ function read_particles!(
         ids = read_particle_ids(halo) |> sort!
         filter!(pc; ids)
     end
+
+    halo.props[:shift_to_center] = shift_to_center
 
     copy!(halo, pc)
     return halo
@@ -209,6 +214,76 @@ function read_particles!(
     else
         translate_periodic!(halo, centerpos, posprop; units, unitful)
     end
+    halo.props[:shift_to_center] = shift_to_center
+    return halo
+end
+
+function read_particles!(
+    halo::AbstractHalo,
+    pc::AbstractHalo,
+    typeprops::Union{AbstractVector{<:Union{Tuple,Pair}},Nothing},
+    radius::Union{Number,Symbol};
+    rscale::Real=1,
+    shift_to_center::Bool=false,
+    units::Symbol=:physical,
+    unitful::Bool=false,
+    posprop::Symbol=:pos,
+    readall::Bool=false,
+)
+    centerpos = read_prop(halo, :pos; units, unitful)
+    r = rscale * _get_val_or_halo_prop(radius, halo, units, unitful)
+
+    if shift_to_center
+        if get(pc.props, :shift_to_center, false)
+            # collection from which particles are read were already shifted
+            shift_by = read_prop(pc, :pos; units, unitful) .- centerpos
+        else
+            shift_by = -centerpos
+        end
+        pc = translate(pc, shift_by, posprop)
+    end
+
+    centerpos_new = shift_to_center ? zeros(length(centerpos)) : centerpos
+    pc_halo = filter(pc, CosmoHypersphere(centerpos_new, r); affect=typeprops)
+
+    if !readall
+        ids = read_particle_ids(halo) |> sort!
+        filter!(pc_halo; ids)
+    end
+
+    halo.props[:shift_to_center] = shift_to_center
+
+    copy!(halo, pc_halo)
+    return halo
+end
+
+function read_particles!(
+    halo::AbstractHalo,
+    pc::AbstractHalo,
+    typeprops::Union{AbstractVector{<:Union{Tuple,Pair}},Nothing}=nothing;
+    shift_to_center::Bool=false,
+    units::Symbol=:physical,
+    unitful::Bool=false,
+    posprop::Symbol=:pos,
+)
+    centerpos = read_prop(halo, :pos; units, unitful)
+
+    if shift_to_center
+        if get(pc.props, :shift_to_center, false)
+            # collection from which particles are read were already shifted
+            shift_by = read_prop(pc, :pos; units, unitful) .- centerpos
+        else
+            shift_by = -centerpos
+        end
+        pc = translate(pc, shift_by, posprop)
+    end
+
+    ids = read_particle_ids(halo) |> sort!
+    pc_halo = filter(pc; ids, affect=typeprops)
+
+    halo.props[:shift_to_center] = shift_to_center
+
+    copy!(halo, pc_halo)
     return halo
 end
 
@@ -253,6 +328,8 @@ function read_particles!(
         ids = read_particle_ids(halo) |> sort!
         filter!(pc_halo; ids)
     end
+
+    halo.props[:shift_to_center] = shift_to_center
 
     copy!(halo, pc_halo)
     return halo
