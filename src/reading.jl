@@ -241,6 +241,11 @@ function read_particles!(
             shift_by = -centerpos
         end
         pc = translate(pc, shift_by, posprop)
+    else
+        if get(pc.props, :shift_to_center, false)
+            # collection from which particles are read were already shifted
+            centerpos .-= read_prop(pc, :pos; units, unitful)
+        end
     end
 
     centerpos_new = shift_to_center ? zeros(length(centerpos)) : centerpos
