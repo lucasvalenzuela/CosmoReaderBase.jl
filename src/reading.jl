@@ -62,7 +62,7 @@ function read_particles(
     radius::Number;
     kwargs...,
 )
-    pc = read_particles_in_cuboid(snapshot, typeprops, centerpos .- radius, centerpos .+ radius; kwargs...)
+    pc = read_particles_in_cuboid(snapshot, _add_id_prop(typeprops), centerpos .- radius, centerpos .+ radius; kwargs...)
     filter!(pc; ids)
     return pc
 end
@@ -160,6 +160,8 @@ end
 _get_val_or_halo_prop(val::Number, _, _, _) = val
 _get_val_or_halo_prop(prop::Symbol, halo, units, unitful) = read_prop(halo, prop; units, unitful)
 
+_add_id_prop(typeprops) = [type => union(props, [:id]) for (type, props) in typeprops]
+
 function read_particles!(
     halo::AbstractHalo,
     typeprops::AbstractVector{<:Union{Tuple,Pair}},
@@ -175,7 +177,7 @@ function read_particles!(
     r = rscale * _get_val_or_halo_prop(radius, halo, units, unitful)
     pc = read_particles_in_cuboid(
         get_snapshot(halo),
-        typeprops,
+        _add_id_prop(typeprops),
         centerpos .- r,
         centerpos .+ r;
         units,
