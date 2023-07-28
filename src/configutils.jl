@@ -7,7 +7,7 @@ The supported values for `units` are `:physical`, `:comoving`, and `:sim`.
 """
 function assert_unit_type(units::Symbol)
     if units !== :physical && units !== :comoving && units !== :sim
-        error("Invalid units value $units passed - only the following values are supported: :physical, :comoving, :sim")
+        error("Invalid units value `:$units` passed - only the following values are supported: :physical, :comoving, :sim")
     end
 
     return true
