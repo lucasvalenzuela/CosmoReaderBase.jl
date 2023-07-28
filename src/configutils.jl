@@ -198,6 +198,8 @@ for (excl, sim_return) in zip(["", "!"], [:(copy(a)), :a])
             unitful::Bool=false,
             propexp=Dict{Symbol,Float64}(:pos => 1, :vel => 1),
         )
+            CosmoReaderBase.assert_unit_type(units)
+
             units === :sim && return $sim_return
 
             f, u = get(simunits, prop, (nothing, nothing))
@@ -228,6 +230,8 @@ for (excl, sim_return) in zip(["", "!"], [:(copy(a)), :a])
             units::Symbol=:physical,
             propexp=Dict{Symbol,Float64}(:pos => 1, :vel => 1),
         )
+            CosmoReaderBase.assert_unit_type(units)
+
             units === :sim && return $sim_return
 
             f, u = get(simunits, prop, (nothing, nothing))
