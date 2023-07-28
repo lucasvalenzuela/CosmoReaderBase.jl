@@ -1,4 +1,20 @@
 """
+    assert_unit_type(units::Symbol)
+
+Returns `true` if `units` has one of the supported values, else throws an error.
+
+The supported values for `units` are `:physical`, `:comoving`, and `:sim`.
+"""
+function assert_unit_type(units::Symbol)
+    if units !== :physical && units !== :comoving && units !== :sim
+        error("Invalid units value $units passed - only the following values are supported: :physical, :comoving, :sim")
+    end
+
+    return true
+end
+
+
+"""
     abstract type AbstractSnapParams end
 
 Abstract type containing parameters for conversion of properties between simulation and physical

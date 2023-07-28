@@ -396,6 +396,7 @@ This function caches the value in simulation units and uses the cached value if 
 - `verbose::Bool=false`: whether the output should be verbose or not
 """
 function read_prop(halo::AbstractHalo, prop::Symbol; units::Symbol=:physical, unitful::Bool=false, kwargs...)
+    assert_unit_type(units)
     val = haskey(halo.props, prop) ? halo.props[prop] : read_prop_simunits(halo, prop; kwargs...)
     return convert_halo_prop(val, prop, halo; units, unitful)
 end
