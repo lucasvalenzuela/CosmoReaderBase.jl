@@ -173,6 +173,8 @@ function read_particles!(
     shift_to_center::Bool=false,
     kwargs...,
 )
+    radius isa Number && assert_pos_of_unit_type(radius, units, unitful)
+
     centerpos = read_prop(halo, :pos; units, unitful)
     r = rscale * _get_val_or_halo_prop(radius, halo, units, unitful)
     pc = read_particles_in_cuboid(
