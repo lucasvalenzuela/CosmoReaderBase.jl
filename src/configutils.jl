@@ -13,6 +13,28 @@ function assert_unit_type(units::Symbol)
     return true
 end
 
+"""
+    assert_pos_of_unit_type(pos, units::Symbol, unitful::Bool)   
+    assert_pos_of_unit_type(::Type, units::Symbol, unitful::Bool)
+
+Returns `true` if the position value and the units are compatible, else throws an error.
+
+The supported combinations are the following:
+- If `units` is `:physical` or `:comoving` and `unitful === true`, the value has to be a unitful quantity.
+- If `units` is `:sim` or `unitful === false`, the value has to be a non-unitful real quantity.
+"""
+assert_pos_of_unit_type(_::T, units, unitful) where {T} = assert_pos_of_unit_type(T, units, unitful)
+assert_pos_of_unit_type(_::AbstractArray{T}, units, unitful) where {T} = assert_pos_of_unit_type(T, units, unitful)
+function assert_pos_of_unit_type(T::Type, units::Symbol, unitful::Bool)
+    if (units === :physical || units === :comoving) && unitful && !(T <: Unitful.Length)
+        error("The passed position vector or the radius is of the wrong unit type. When `unitful === true`, unitful values such as `10u\"kpc\"` are necessary.")
+    elseif (!unitful || units === :sim) && !(T <: Real)
+        error("The passed position vector or the radius is of the wrong unit type. When `unitful === false` or `units === :sim`, unitful values such as `10u\"kpc\"` are not possible, instead pass the value as a real value, such as `10`.")
+    end
+
+    return true
+end
+
 
 """
     abstract type AbstractSnapParams end

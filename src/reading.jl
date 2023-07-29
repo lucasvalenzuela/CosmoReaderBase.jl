@@ -232,6 +232,8 @@ function read_particles!(
     posprop::Symbol=:pos,
     readall::Bool=false,
 )
+    radius isa Number && assert_pos_of_unit_type(radius, units, unitful)
+
     centerpos = read_prop(halo, :pos; units, unitful)
     r = rscale * _get_val_or_halo_prop(radius, halo, units, unitful)
 
@@ -307,6 +309,8 @@ function read_particles!(
     forceshift::Bool=false,
     readall::Bool=false,
 )
+    radius isa Number && assert_pos_of_unit_type(radius, units, unitful)
+
     centerpos = read_prop(halo, :pos; units, unitful)
     r = rscale * _get_val_or_halo_prop(radius, halo, units, unitful)
 
