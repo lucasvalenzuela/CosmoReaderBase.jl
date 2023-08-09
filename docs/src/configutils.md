@@ -2,7 +2,22 @@
 CurrentModule = CosmoReaderBase
 ```
 
-# Developer Utils
+# Utils
+
+## Configuration Utils
+
+```@docs
+ConfigManager.PropertyConfig
+ConfigManager.add_property!
+ConfigManager.add_identifier!
+ConfigManager.delete!
+ConfigManager.getindex
+ConfigManager.get
+ConfigManager.haskey
+```
+
+
+## Developer Utils
 
 ```@docs
 AbstractSnapParams
