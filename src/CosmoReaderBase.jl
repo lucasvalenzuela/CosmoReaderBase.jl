@@ -11,6 +11,7 @@ include("reading.jl")
 include("readingsubfind.jl")
 include("trees.jl")
 include("configutils.jl")
+include("config_manager.jl")
 
 export
     # Abstract simulation

@@ -16,7 +16,7 @@ read_particle_ids
 ## Reading Halos
 
 ```@docs
-read_prop(::AbstractHalo)
+read_prop(::AbstractHalo, ::Symbol)
 read_halos
 read_subhalos
 ```
@@ -33,7 +33,7 @@ Further predefined methods can also be implemented to improve performance.
 - `read_particles_in_cuboid(snapshot::AbstractSnapshot, typeprops::AbstractVector{<:Union{Tuple,Pair}}, lowerleft::AbstractArray, upperright::AbstractArray)`
 
 ```@docs
-read_prop_simunits
+read_prop_simunits(::AbstractHalo, ::Symbol)
 convert_halo_prop
 convert_particle_prop!
 ```

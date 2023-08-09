@@ -219,7 +219,7 @@ To easily check whether a tree is provided, use [`has_tree(sim)`](@ref) and if i
 with [`get_tree(sim)`](@ref).
 
 Each subhalo (and/or halo) of a simulation has a counterpart halo node in the merger tree. To switch between the
-two types, use [`get_halo::AbstractMergerTreeNode`](@ref), [`get_subhalo::AbstractMergerTreeNode`](@ref), and
+two types, use [`get_halo(::AbstractMergerTreeNode)`](@ref), [`get_subhalo(::AbstractMergerTreeNode)`](@ref), and
 [`get_tree_node`](@ref). Generally, a limited set of properties are available for halo nodes, which can be
 checked with [`has_prop(::AbstractMergerTreeNode, prop)`](@ref) and loaded with [`read_prop(::AbstractMergerTreeNode, prop)`].
 
