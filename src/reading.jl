@@ -60,7 +60,7 @@ function read_particles(
     ids::AbstractVector,
     centerpos::AbstractVector,
     radius::Number;
-    kwargs...,
+    kwargs...
 )
     pc = read_particles_in_cuboid(snapshot, _add_id_prop(typeprops), centerpos .- radius, centerpos .+ radius; kwargs...)
     filter!(pc; ids)
@@ -91,7 +91,7 @@ function read_particles(
     geo::AbstractCosmoGeometry;
     posprop=:pos,
     shift_to_center=false,
-    kwargs...,
+    kwargs...
 )
     lowerleft, upperright = CosmoParticles.geometry_enclosing_corners(geo)
     pc = read_particles_in_cuboid(snapshot, typeprops, lowerleft, upperright; shift_to_center, kwargs...)
@@ -110,7 +110,7 @@ function read_particles(
     posprop=:pos,
     shift_to_center=false,
     exact=false,
-    kwargs...,
+    kwargs...
 )
     lowerleft, upperright = CosmoParticles.geometry_enclosing_corners(geo)
     pc = read_particles_in_cuboid(snapshot, typeprops, lowerleft, upperright; shift_to_center, kwargs...)
@@ -150,10 +150,19 @@ Particles are shifted across the box borders if the halo reaches across the bord
 
 For further possible keywords, see [`read_particles(::AbstractSnapshot)`](@ref).
 """
-function read_particles!(halo::AbstractHalo, typeprops::AbstractVector{<:Union{Tuple,Pair}}; shift_to_center::Bool=false, kwargs...)
-    pc = read_particles(get_snapshot(halo), typeprops, read_particle_ids(halo); shift_to_center, kwargs...)
-    halo.props[:shift_to_center] = shift_to_center
+function read_particles!(halo::AbstractHalo, typeprops::AbstractVector{<:Union{Tuple,Pair}}; shift_to_center::Bool=false, units::Symbol=:physical, unitful::Bool=false, posprop::Symbol=:pos, kwargs...)
+    pc = read_particles(get_snapshot(halo), typeprops, read_particle_ids(halo); kwargs...)
     copy!(halo, pc)
+
+    # shift according to halo center
+    centerpos = read_prop(halo, :pos; units, unitful)
+    if shift_to_center
+        translate_periodic_to_center!(halo, centerpos, posprop; units, unitful)
+    else
+        translate_periodic!(halo, centerpos, posprop; units, unitful)
+    end
+    halo.props[:shift_to_center] = shift_to_center
+
     return halo
 end
 
@@ -171,7 +180,7 @@ function read_particles!(
     unitful::Bool=false,
     readall::Bool=false,
     shift_to_center::Bool=false,
-    kwargs...,
+    kwargs...
 )
     radius isa Number && assert_pos_of_unit_type(radius, units, unitful)
 
@@ -185,7 +194,7 @@ function read_particles!(
         units,
         unitful,
         shift_to_center,
-        kwargs...,
+        kwargs...
     )
 
     if !readall
@@ -206,7 +215,7 @@ function read_particles!(
     shift_to_center::Bool=false,
     units::Symbol=:physical,
     unitful::Bool=false,
-    posprop::Symbol=:pos,
+    posprop::Symbol=:pos
 )
     ids = read_particle_ids(halo) |> sort!
     copy!(halo, filter(pc; ids, affect=typeprops))
@@ -232,7 +241,7 @@ function read_particles!(
     units::Symbol=:physical,
     unitful::Bool=false,
     posprop::Symbol=:pos,
-    readall::Bool=false,
+    readall::Bool=false
 )
     radius isa Number && assert_pos_of_unit_type(radius, units, unitful)
 
@@ -275,7 +284,7 @@ function read_particles!(
     shift_to_center::Bool=false,
     units::Symbol=:physical,
     unitful::Bool=false,
-    posprop::Symbol=:pos,
+    posprop::Symbol=:pos
 )
     centerpos = read_prop(halo, :pos; units, unitful)
 
@@ -309,7 +318,7 @@ function read_particles!(
     unitful::Bool=false,
     posprop::Symbol=:pos,
     forceshift::Bool=false,
-    readall::Bool=false,
+    readall::Bool=false
 )
     radius isa Number && assert_pos_of_unit_type(radius, units, unitful)
 
@@ -352,7 +361,7 @@ function read_particles!(
     halo::AbstractHalo,
     pc::AbstractSimulationParticleCollection,
     radius::Union{Number,Symbol};
-    kwargs...,
+    kwargs...
 )
     read_particles!(halo, pc, nothing, radius; kwargs...)
 end
