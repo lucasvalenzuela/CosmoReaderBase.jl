@@ -2,7 +2,7 @@ module ConfigManager
 
 using Unitful
 
-export PropertyConfig, add_property!, add_identifier!#, set_default_identifier!
+export PropertyConfig, ParticleTypeConfig, add_property!, add_identifier!, add_particle_type!, particleidentifier, particleindex, particlearray, particlearrayview
 
 """
     struct PropertyConfig{T} where {T}
@@ -16,6 +16,7 @@ Configuration struct to manage the properties in a simulation file.
 
 It is recommended to create this configuration object in the following way (by default, `T` will be `String`):
 ```julia
+using CosmoReaderBase.ConfigManager
 c = PropertyConfig() # or PropertyConfig{String}()
 add_property!(c, "POS", (h -> 1 / h.h0, u"kpc"), 1, :pos, :Coordinates, :POS)
 add_property!(c, "ID", (nothing, nothing), :id, :ParticleIDs, :ID)
@@ -49,6 +50,7 @@ Adds the property `prop` with the given parameters to the configuration and retu
 
 Example usage:
 ```julia
+using CosmoReaderBase.ConfigManager
 c = PropertyConfig() # or PropertyConfig{String}()
 add_property!(c, "POS", (h -> 1 / h.h0, u"kpc"), 1, :pos, :Coordinates, :POS)
 add_property!(c, "ID", (nothing, nothing), :id, :ParticleIDs, :ID)
@@ -162,6 +164,8 @@ function Base.delete!(c::PropertyConfig, prop::Symbol)
     elseif haskey(c.identifiers, prop)
         delete!(c, c.identifiers[prop])
     end
+
+    return c
 end
 
 function Base.delete!(c::PropertyConfig, prop)
@@ -226,6 +230,194 @@ Base.copy(c::PropertyConfig) = PropertyConfig(copy(c.props), copy(c.identifiers)
 function Base.show(io::IO, mime::MIME"text/plain", c::PropertyConfig)
     printstyled(io, "PropertyConfig: "; bold=true)
     print(io, join(keys(c.props), ", "))
+end
+
+
+
+
+"""
+    struct ParticleTypeConfig{T}
+        props::Dict{T,Symbol}
+        identifiers::Dict{Symbol,T}
+        index::Dict{Symbol,Int}
+    end
+
+Configuration struct to manage the particle types in a simulation file.
+
+It is recommended to create this configuration object in the following way (where in this example the first
+number indicates the particle name, such as the 0-based index in Gadget format 2, and the second number is the
+1-based index that Julia is supposed to use when indexing into arrays):
+```julia
+using CosmoReaderBase.ConfigManager
+c = ParticleTypeConfig{Int}()
+add_particle_type!(c, 0, :gas, 1)
+add_particle_type!(c, 1, :dm, 2)
+add_particle_type!(c, 4, :stars, 5)
+```
+
+# Attributes
+- `props`: `Dict` of the particle type names saved in the simulation output pointing to the default `Symbol`
+  identifier, e.g. `0 => :gas` or `"PartType0" => :gas`
+- `identifiers`: `Dict` of the `Symbol` identifiers pointing to the particle type name in the simulation output,
+  e.g. `:gas => 0` or `:gas => "PartType0"`
+- `indices`: `Dict` of the 1-based indices with which Julia should access arrays, e.g. `:gas => 1`, `:dm => 2`
+"""
+struct ParticleTypeConfig{T}
+    props::Dict{T,Symbol}
+    identifiers::Dict{Symbol,T}
+    indices::Dict{Symbol,Int}
+end
+
+ParticleTypeConfig{T}() where {T} = ParticleTypeConfig(Dict{T,Symbol}(), Dict{Symbol,T}())
+
+"""
+    add_particle_type!(config::ParticleTypeConfig, prop, identifier, index)
+
+Adds the particle type `prop` with the given identifier and 1-based index to the configuration and returns `config`.
+
+Example usage:
+```julia
+using CosmoReaderBase.ConfigManager
+c = ParticleTypeConfig{Int}()
+add_particle_type!(c, 0, :gas, 1)
+add_particle_type!(c, 1, :dm, 2)
+add_particle_type!(c, 4, :stars, 5)
+```
+
+# Arguments
+- `config::ParticleTypeConfig{T}`: the configuration object to which to add the particle type
+- `prop::T`: particle type name saved in the simulation output, e.g. `0` or `"PartType0"`
+- `identifier::Symbol`: `Symbol` identifier of the particle type, e.g. `:gas` or `:dm`
+- `index::Int`: 1-based indices with which Julia should access arrays for the particle type, e.g. `1` or `2`
+"""
+function add_particle_type!(c::ParticleTypeConfig, prop, identifier, index)
+    c.props[prop] = identifier
+    c.identifiers[identifier] = prop
+    c.indices[identifier] = index
+
+    return c
+end
+
+"""
+    Base.delete!(config::ParticleTypeConfig, prop)
+
+Deletes the particle in the configuration if it exists, else assumes it is an identifier and deletes the
+identifier for another particle (but only if `prop` is a `Symbol`).
+"""
+function Base.delete!(c::ParticleTypeConfig, prop::Symbol)
+    if haskey(c.props, prop)
+        @invoke delete!(c::ParticleTypeConfig, prop::Any)
+    elseif haskey(c.identifiers, prop)
+        delete!(c, c.identifiers[prop])
+    end
+
+    return c
+end
+
+function Base.delete!(c::ParticleTypeConfig, prop)
+    haskey(c.props, prop) || return c
+
+    identifier = c.props[prop]
+
+    delete!(c.props, prop)
+    delete!(c.identifiers, identifier)
+    delete!(c.indices, identifier)
+
+    return c
+end
+
+"""
+    Base.getindex(config::ParticleTypeConfig, identifier::Symbol)
+
+Returns the property corresponding to the identifier.
+"""
+Base.getindex(c::ParticleTypeConfig, identifier::Symbol) = getindex(c.identifiers, identifier)
+
+"""
+    Base.get(config::ParticleTypeConfig, identifier::Symbol, default)
+
+Returns the property corresponding to the identifier, or `default` if the identifier does not exist.
+"""
+Base.get(c::ParticleTypeConfig, identifier::Symbol, default) = get(c.identifiers, identifier, default)
+
+"""
+    Base.haskey(config::ParticleTypeConfig, identifier::Symbol)
+
+Returns if the identifier exists in the configuration.
+"""
+Base.haskey(c::ParticleTypeConfig, identifier::Symbol) = haskey(c.identifiers, identifier)
+
+Base.copy(c::ParticleTypeConfig) = ParticleTypeConfig(copy(c.props), copy(c.identifiers), copy(c.indices))
+
+"""
+    particleidentifier(config::ParticleTypeConfig, prop)
+
+Returns the identifier corresponding to the particle type name.
+"""
+particleidentifier(c::ParticleTypeConfig, prop) = getindex(c.props, prop)
+
+"""
+    particleindex(config::ParticleTypeConfig, identifier::Symbol)
+
+Returns the 1-based index corresponding to the particle type identifier.
+"""
+particleindex(c::ParticleTypeConfig, identifier::Symbol) = getindex(c.indices, identifier)
+
+"""
+    particlearray(config::ParticleTypeConfig, identifier::Symbol, a::AbstractVector)
+
+Returns `a[particleindex]` with the index given by the config for the particle identifier.
+
+This is relevant for the mass table array, for example:
+```julia
+using CosmoReaderBase.ConfigManager
+config::ParticleTypeConfig # set up as seen in ParticleTypeConfig docstring
+masstab = rand(6)
+particlearray(config, :dm, masstab)
+```
+
+See also [`particlearrayview`](@ref).
+"""
+particlearray(c::ParticleTypeConfig, identifier::Symbol, a::AbstractVector) = a[particleindex(c, identifier)]
+
+"""
+    particlearray(config::ParticleTypeConfig, identifier::Symbol, a::AbstractMatrix)
+
+Returns `a[particleindex, :]` with the index given by the config for the particle identifier.
+
+This is relevant for the subhalo mass table array, for example:
+```julia
+using CosmoReaderBase.ConfigManager
+config::ParticleTypeConfig # set up as seen in ParticleTypeConfig docstring
+smst = rand(6, 100)
+particlearray(config, :dm, smst)
+```
+
+See also [`particlearrayview`](@ref).
+"""
+particlearray(c::ParticleTypeConfig, identifier::Symbol, a::AbstractMatrix) = a[particleindex(c, identifier), :]
+
+"""
+    particlearrayview(config::ParticleTypeConfig, identifier::Symbol, a::AbstractMatrix)
+
+Returns `@view a[particleindex, :]` with the index given by the config for the particle identifier.
+
+This is relevant for the subhalo mass table array, for example:
+```julia
+using CosmoReaderBase.ConfigManager
+config::ParticleTypeConfig # set up as seen in ParticleTypeConfig docstring
+smst = rand(6, 100)
+particlearrayview(config, :dm, smst)
+```
+
+See also [`particlearray`](@ref).
+"""
+particlearrayview(c::ParticleTypeConfig, identifier::Symbol, a::AbstractMatrix) = @view a[particleindex(c, identifier), :]
+
+
+function Base.show(io::IO, mime::MIME"text/plain", c::ParticleTypeConfig)
+    printstyled(io, "ParticleTypeConfig: "; bold=true)
+    print(io, join(keys(c.identifiers), ", "))
 end
 
 end # module
