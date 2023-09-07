@@ -123,12 +123,19 @@ function read_particles(
 end
 
 """
-    read_particles!(halo::AbstractHalo, typeprops::AbstractVector{<:Union{Tuple,Pair}}[, radius])
-    read_particles!(halo::AbstractHalo, pc::AbstractSimulationParticleCollection[, typeprops::AbstractVector{<:Union{Tuple,Pair}}][, radius])
+    read_particles!(halo::AbstractHalo, typeprops::AbstractVector{<:Union{Tuple,Pair}}[, minradius])
+    read_particles!(halo::AbstractHalo, typeprops::AbstractVector{<:Union{Tuple,Pair}}, sphere::CosmoSphere)
+    read_particles!(halo::AbstractHalo, pc::AbstractSimulationParticleCollection[, typeprops::AbstractVector{<:Union{Tuple,Pair}}][, minradius])
 
 Returns the particles within the given halo with the specified properties.
 
-For the second method, the particles are purely read from the particle collection `pc`. If `typeprops` are not
+The first method reads out the particles including at least all the particles within the
+given radius (times the scaling factor `rscale`, see the keyword arguments), depending on
+the most performant read-out method.
+The second method in contrast filters the particles to only include those located within
+the radius of the `CosmoSphere` (created by `CosmoSphere(radius)`).
+
+For the third method, the particles are purely read from the particle collection `pc`. If `typeprops` are not
 given, all available particle types and properties are filtered. The units passed should be the same as the
 particle collection was read in with.
 
@@ -171,6 +178,7 @@ _get_val_or_halo_prop(prop::Symbol, halo, units, unitful) = read_prop(halo, prop
 
 _add_id_prop(typeprops) = [type => union(props, [:id]) for (type, props) in typeprops]
 
+# from simulation within radius
 function read_particles!(
     halo::AbstractHalo,
     typeprops::AbstractVector{<:Union{Tuple,Pair}},
@@ -208,6 +216,28 @@ function read_particles!(
     return halo
 end
 
+# from simulation within sphere
+function read_particles!(
+    halo::AbstractHalo,
+    typeprops::AbstractVector{<:Union{Tuple,Pair}},
+    sphere::CosmoSphere;
+    units::Symbol=:physical,
+    unitful::Bool=false,
+    shift_to_center::Bool=false,
+    posprop::Symbol=:pos,
+    kwargs...
+)
+    read_particles!(halo, typeprops, sphere.radius; units, unitful, shift_to_center, kwargs...)
+    if !shift_to_center
+        centerpos = read_prop(halo, :pos; units, unitful)
+        sphere = translate(sphere, centerpos)
+    end
+    filter!(halo, sphere, posprop)
+
+    return halo
+end
+
+# from particle collection
 function read_particles!(
     halo::AbstractHalo,
     pc::AbstractParticleCollection,
@@ -231,6 +261,7 @@ function read_particles!(
     return halo
 end
 
+# from already read-out halo within radius
 function read_particles!(
     halo::AbstractHalo,
     pc::AbstractHalo,
@@ -277,6 +308,7 @@ function read_particles!(
     return halo
 end
 
+# from already read-out halo
 function read_particles!(
     halo::AbstractHalo,
     pc::AbstractHalo,
@@ -307,6 +339,7 @@ function read_particles!(
     return halo
 end
 
+# from particle collection within radius
 function read_particles!(
     halo::AbstractHalo,
     pc::AbstractSimulationParticleCollection,
@@ -357,6 +390,42 @@ function read_particles!(
     return halo
 end
 
+# from particle collection within sphere
+function read_particles!(
+    halo::AbstractHalo,
+    pc::AbstractParticleCollection,
+    typeprops::Union{AbstractVector{<:Union{Tuple,Pair}},Nothing},
+    sphere::CosmoSphere;
+    units::Symbol=:physical,
+    unitful::Bool=false,
+    shift_to_center::Bool=false,
+    posprop::Symbol=:pos,
+    kwargs...
+)
+    read_particles!(halo, pc, typeprops, sphere.radius; units, unitful, shift_to_center, posprop, kwargs...)
+    if !shift_to_center
+        centerpos = read_prop(halo, :pos; units, unitful)
+        sphere = translate(sphere, centerpos)
+    end
+    filter!(halo, sphere, posprop)
+
+    return halo
+end
+
+# from alread read-out halo within sphere
+function read_particles!(
+    halo::AbstractHalo,
+    pc::AbstractHalo,
+    typeprops::Union{AbstractVector{<:Union{Tuple,Pair}},Nothing},
+    sphere::CosmoSphere;
+    kwargs...
+)
+    read_particles!(halo, pc, typeprops, sphere.radius; kwargs...)
+end
+
+
+
+# from particle collection within radius without specifying typeprops
 function read_particles!(
     halo::AbstractHalo,
     pc::AbstractSimulationParticleCollection,
