@@ -10,6 +10,7 @@ export PropertyConfig, ParticleTypeConfig, add_property!, add_identifier!, add_p
         identifiers::Dict{Symbol,T}
         units::Dict{Symbol,<:Tuple}
         dist_exponents::Dict{Symbol,Int}
+        rownames::Dict{Symbol,NTuple}
     end
 
 Configuration struct to manage the properties in a simulation file.
@@ -32,19 +33,22 @@ add_property!(c, "ID", (nothing, nothing), :id, :ParticleIDs, :ID)
   is the unitful unit corresponding to the quantity, e.g. `u"kpc"`
 - `dist_exponents`: `Dict` of the exponential dependence on distance, e.g. `:pos => 1`, `:vel => 1`,
   or `:rho => -3`. This is necessary for the conversion between comoving and physical quantities.
+- `rownames::Dict{Symbol,NTuple}`: `Dict` of the row names of the properties,
+  they can be used to create a `NamedRowArray`
 """
 struct PropertyConfig{T}
     props::Dict{T,Symbol}
     identifiers::Dict{Symbol,T}
     units::Dict{Symbol,<:Tuple}
     dist_exponents::Dict{Symbol,Int}
+    rownames::Dict{Symbol,NTuple}
 end
-PropertyConfig{T}() where {T} = PropertyConfig(Dict{T,Symbol}(), Dict{Symbol,T}(), Dict{Symbol,Tuple}(), Dict{Symbol,Int}())
+PropertyConfig{T}() where {T} = PropertyConfig(Dict{T,Symbol}(), Dict{Symbol,T}(), Dict{Symbol,Tuple}(), Dict{Symbol,Int}(), Dict{Symbol,NTuple}())
 PropertyConfig() = PropertyConfig{String}()
 
 """
-    add_property!(config::PropertyConfig, prop, units, [dist_exponent], identifiers...)
-    add_property!(config::PropertyConfig, prop, f, unit, [dist_exponent], identifiers...)
+    add_property!(config::PropertyConfig, prop, units, [dist_exponent], [rownames], identifiers...)
+    add_property!(config::PropertyConfig, prop, f, unit, [dist_exponent], [rownames], identifiers...)
 
 Adds the property `prop` with the given parameters to the configuration and returns `config`.
 
@@ -54,6 +58,7 @@ using CosmoReaderBase.ConfigManager
 c = PropertyConfig() # or PropertyConfig{String}()
 add_property!(c, "POS", (h -> 1 / h.h0, u"kpc"), 1, :pos, :Coordinates, :POS)
 add_property!(c, "ID", (nothing, nothing), :id, :ParticleIDs, :ID)
+add_property!(c, "Zs", (nothing, nothing), (:He, :C, :O, :Ej) :zs, :GFM_Metals, :Zs)
 ```
 
 # Arguments
@@ -67,6 +72,7 @@ add_property!(c, "ID", (nothing, nothing), :id, :ParticleIDs, :ID)
 - `dist_exponent::Union{Integer,Nothing}`: exponential dependence on distance, e.g. `1` for positional and
   velocity quantities, or `-3` for densities. This is necessary for the conversion between comoving and physical
   quantities.
+- `rownames::Union{NTuple{N,Symbol},Nothing}`: row names of the property, for example for metals
 - `identifiers::Symbol...`: possible identifiers (at least one is needed) for usage when reading properties,
   e.g. `:pos`, `:Coordinates`, `:positions`, etc.
 """
@@ -75,14 +81,20 @@ function add_property!(
     prop,
     units::Tuple,
     dist_exponent::Union{Integer,Nothing},
+    rownames::Union{NTuple,Nothing},
     default_identifier::Symbol,
     identifiers::Symbol...,
 )
+    @assert isnothing(rownames) || eltype(rownames) === Symbol
+    
     c.props[prop] = default_identifier
     c.identifiers[default_identifier] = prop
     c.units[default_identifier] = units
     if !isnothing(dist_exponent) && !iszero(dist_exponent)
         c.dist_exponents[default_identifier] = dist_exponent
+    end
+    if !isnothing(rownames) && !isempty(rownames)
+        c.rownames[default_identifier] = rownames
     end
 
     for identifier in identifiers
@@ -90,6 +102,9 @@ function add_property!(
         c.units[identifier] = units
         if !isnothing(dist_exponent) && !iszero(dist_exponent)
             c.dist_exponents[identifier] = dist_exponent
+        end
+        if !isnothing(rownames) && !isempty(rownames)
+            c.rownames[identifier] = rownames
         end
     end
 
@@ -102,7 +117,27 @@ function add_property!(
     units::Tuple,
     identifiers::Symbol...,
 )
-    add_property!(c, prop, units, nothing, identifiers...)
+    add_property!(c, prop, units, nothing, nothing, identifiers...)
+end
+
+function add_property!(
+    c::PropertyConfig,
+    prop,
+    units::Tuple,
+    dist_exponent::Integer,
+    identifiers::Symbol...,
+)
+    add_property!(c, prop, units, dist_exponent, nothing, identifiers...)
+end
+
+function add_property!(
+    c::PropertyConfig,
+    prop,
+    units::Tuple,
+    rownames::NTuple{N,Symbol},
+    identifiers::Symbol...,
+   ) where {N}
+    add_property!(c, prop, units, nothing, rownames, identifiers...)
 end
 
 function add_property!(
@@ -112,7 +147,18 @@ function add_property!(
     unit::Union{Unitful.Units,Nothing},
     identifiers::Symbol...,
 )
-    add_property!(c, prop, (func_sim_to_comoving, unit), nothing, identifiers...)
+    add_property!(c, prop, (func_sim_to_comoving, unit), nothing, nothing, identifiers...)
+end
+
+function add_property!(
+    c::PropertyConfig,
+    prop,
+    func_sim_to_comoving::Union{Function,Nothing},
+    unit::Union{Unitful.Units,Nothing},
+    rownames::NTuple{N,Symbol},
+    identifiers::Symbol...,
+) where {N}
+    add_property!(c, prop, (func_sim_to_comoving, unit), nothing, rownames, identifiers...)
 end
 
 function add_property!(
@@ -123,7 +169,19 @@ function add_property!(
     dist_exponent::Integer,
     identifiers::Symbol...,
 )
-    add_property!(c, prop, (func_sim_to_comoving, unit), dist_exponent, identifiers...)
+    add_property!(c, prop, (func_sim_to_comoving, unit), dist_exponent, nothing, identifiers...)
+end
+
+function add_property!(
+    c::PropertyConfig,
+    prop,
+    func_sim_to_comoving::Union{Function,Nothing},
+    unit::Union{Unitful.Units,Nothing},
+    dist_exponent::Integer,
+    rownames::NTuple{N,Symbol},
+    identifiers::Symbol...,
+) where {N}
+    add_property!(c, prop, (func_sim_to_comoving, unit), dist_exponent, rownames, identifiers...)
 end
 
 """
@@ -178,6 +236,7 @@ function Base.delete!(c::PropertyConfig, prop)
         delete!(c.identifiers, identifier)
         delete!(c.units, identifier)
         delete!(c.dist_exponents, identifier)
+        delete!(c.rownames, identifier)
     end
 
     return c
@@ -225,7 +284,7 @@ Returns if the property exists in the configuration.
 """
 Base.haskey(c::PropertyConfig, prop) = haskey(c.props, prop)
 
-Base.copy(c::PropertyConfig) = PropertyConfig(copy(c.props), copy(c.identifiers), copy(c.units), copy(c.dist_exponents))
+Base.copy(c::PropertyConfig) = PropertyConfig(copy(c.props), copy(c.identifiers), copy(c.units), copy(c.dist_exponents), copy(c.rownames))
 
 function Base.show(io::IO, mime::MIME"text/plain", c::PropertyConfig)
     printstyled(io, "PropertyConfig: "; bold=true)
@@ -268,7 +327,7 @@ struct ParticleTypeConfig{T}
     indices::Dict{Symbol,Int}
 end
 
-ParticleTypeConfig{T}() where {T} = ParticleTypeConfig(Dict{T,Symbol}(), Dict{Symbol,T}())
+ParticleTypeConfig{T}() where {T} = ParticleTypeConfig(Dict{T,Symbol}(), Dict{Symbol,T}(), Dict{Symbol,Int}())
 
 """
     add_particle_type!(config::ParticleTypeConfig, prop, identifier, index)
