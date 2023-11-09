@@ -20,7 +20,7 @@ makedocs(;
         "Particle Collections" => "particlecollections.md",
         "Reading" => "reading.md",
         "Merger Trees" => "trees.md",
-        "Developer Utils" => "configutils.md",
+        "Utils" => "configutils.md",
     ],
 )
 
