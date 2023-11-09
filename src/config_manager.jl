@@ -2,7 +2,15 @@ module ConfigManager
 
 using Unitful
 
-export PropertyConfig, ParticleTypeConfig, add_property!, add_identifier!, add_particle_type!, particleidentifier, particleindex, particlearray, particlearrayview
+export PropertyConfig,
+    ParticleTypeConfig,
+    add_property!,
+    add_identifier!,
+    add_particle_type!,
+    particleidentifier,
+    particleindex,
+    particlearray,
+    particlearrayview
 
 """
     struct PropertyConfig{T} where {T}
@@ -43,7 +51,13 @@ struct PropertyConfig{T}
     dist_exponents::Dict{Symbol,Int}
     rownames::Dict{Symbol,NTuple}
 end
-PropertyConfig{T}() where {T} = PropertyConfig(Dict{T,Symbol}(), Dict{Symbol,T}(), Dict{Symbol,Tuple}(), Dict{Symbol,Int}(), Dict{Symbol,NTuple}())
+PropertyConfig{T}() where {T} = PropertyConfig(
+    Dict{T,Symbol}(),
+    Dict{Symbol,T}(),
+    Dict{Symbol,Tuple}(),
+    Dict{Symbol,Int}(),
+    Dict{Symbol,NTuple}(),
+)
 PropertyConfig() = PropertyConfig{String}()
 
 """
@@ -86,7 +100,7 @@ function add_property!(
     identifiers::Symbol...,
 )
     @assert isnothing(rownames) || eltype(rownames) === Symbol
-    
+
     c.props[prop] = default_identifier
     c.identifiers[default_identifier] = prop
     c.units[default_identifier] = units
@@ -111,22 +125,11 @@ function add_property!(
     return c
 end
 
-function add_property!(
-    c::PropertyConfig,
-    prop,
-    units::Tuple,
-    identifiers::Symbol...,
-)
+function add_property!(c::PropertyConfig, prop, units::Tuple, identifiers::Symbol...)
     add_property!(c, prop, units, nothing, nothing, identifiers...)
 end
 
-function add_property!(
-    c::PropertyConfig,
-    prop,
-    units::Tuple,
-    dist_exponent::Integer,
-    identifiers::Symbol...,
-)
+function add_property!(c::PropertyConfig, prop, units::Tuple, dist_exponent::Integer, identifiers::Symbol...)
     add_property!(c, prop, units, dist_exponent, nothing, identifiers...)
 end
 
@@ -136,7 +139,7 @@ function add_property!(
     units::Tuple,
     rownames::NTuple{N,Symbol},
     identifiers::Symbol...,
-   ) where {N}
+) where {N}
     add_property!(c, prop, units, nothing, rownames, identifiers...)
 end
 
@@ -197,16 +200,16 @@ end
 
 
 # """
-    # set_default_identifier!(config::PropertyConfig, prop, identifier::Symbol)
+# set_default_identifier!(config::PropertyConfig, prop, identifier::Symbol)
 # 
 # Sets the default identifier of `prop` in the configuration and returns `config`.
 # 
 # The default identifier is returned when 
 # """
 # function set_default_identifier!(c::PropertyConfig, prop, identifier::Symbol)
-    # c.props[prop] = identifier
-    # c.identifiers[identifier] = prop
-    # return c
+# c.props[prop] = identifier
+# c.identifiers[identifier] = prop
+# return c
 # end
 
 
@@ -284,7 +287,13 @@ Returns if the property exists in the configuration.
 """
 Base.haskey(c::PropertyConfig, prop) = haskey(c.props, prop)
 
-Base.copy(c::PropertyConfig) = PropertyConfig(copy(c.props), copy(c.identifiers), copy(c.units), copy(c.dist_exponents), copy(c.rownames))
+Base.copy(c::PropertyConfig) = PropertyConfig(
+    copy(c.props),
+    copy(c.identifiers),
+    copy(c.units),
+    copy(c.dist_exponents),
+    copy(c.rownames),
+)
 
 function Base.show(io::IO, mime::MIME"text/plain", c::PropertyConfig)
     printstyled(io, "PropertyConfig: "; bold=true)
@@ -454,7 +463,8 @@ particlearray(config, :dm, smst)
 
 See also [`particlearrayview`](@ref).
 """
-particlearray(c::ParticleTypeConfig, identifier::Symbol, a::AbstractMatrix) = a[particleindex(c, identifier), :]
+particlearray(c::ParticleTypeConfig, identifier::Symbol, a::AbstractMatrix) =
+    a[particleindex(c, identifier), :]
 
 """
     particlearrayview(config::ParticleTypeConfig, identifier::Symbol, a::AbstractMatrix)
@@ -471,7 +481,8 @@ particlearrayview(config, :dm, smst)
 
 See also [`particlearray`](@ref).
 """
-particlearrayview(c::ParticleTypeConfig, identifier::Symbol, a::AbstractMatrix) = @view a[particleindex(c, identifier), :]
+particlearrayview(c::ParticleTypeConfig, identifier::Symbol, a::AbstractMatrix) =
+    @view a[particleindex(c, identifier), :]
 
 
 function Base.show(io::IO, mime::MIME"text/plain", c::ParticleTypeConfig)

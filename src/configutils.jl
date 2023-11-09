@@ -7,7 +7,9 @@ The supported values for `units` are `:physical`, `:comoving`, and `:sim`.
 """
 function assert_unit_type(units::Symbol)
     if units !== :physical && units !== :comoving && units !== :sim
-        error("Invalid units value `:$units` passed - only the following values are supported: :physical, :comoving, :sim")
+        error(
+            "Invalid units value `:$units` passed - only the following values are supported: :physical, :comoving, :sim",
+        )
     end
 
     return true
@@ -24,12 +26,17 @@ The supported combinations are the following:
 - If `units` is `:sim` or `unitful === false`, the value has to be a non-unitful real quantity.
 """
 assert_pos_of_unit_type(_::T, units, unitful) where {T} = assert_pos_of_unit_type(T, units, unitful)
-assert_pos_of_unit_type(_::AbstractArray{T}, units, unitful) where {T} = assert_pos_of_unit_type(T, units, unitful)
+assert_pos_of_unit_type(_::AbstractArray{T}, units, unitful) where {T} =
+    assert_pos_of_unit_type(T, units, unitful)
 function assert_pos_of_unit_type(T::Type, units::Symbol, unitful::Bool)
     if (units === :physical || units === :comoving) && unitful && !(T <: Unitful.Length)
-        error("The passed position vector or the radius is of the wrong unit type. When `unitful === true`, unitful values such as `10u\"kpc\"` are necessary.")
+        error(
+            "The passed position vector or the radius is of the wrong unit type. When `unitful === true`, unitful values such as `10u\"kpc\"` are necessary.",
+        )
     elseif (!unitful || units === :sim) && !(T <: Real)
-        error("The passed position vector or the radius is of the wrong unit type. When `unitful === false` or `units === :sim`, unitful values such as `10u\"kpc\"` are not possible, instead pass the value as a real value, such as `10`.")
+        error(
+            "The passed position vector or the radius is of the wrong unit type. When `unitful === false` or `units === :sim`, unitful values such as `10u\"kpc\"` are not possible, instead pass the value as a real value, such as `10`.",
+        )
     end
 
     return true

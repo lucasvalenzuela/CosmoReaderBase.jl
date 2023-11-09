@@ -264,8 +264,7 @@ for H in [:Halo, :Subhalo]
         end
 
 
-        Base.copy(halo::$H) =
-            $H(halo.snapshot, halo.id, copy(halo.props), copy(halo.particles))
+        Base.copy(halo::$H) = $H(halo.snapshot, halo.id, copy(halo.props), copy(halo.particles))
         Base.empty(halo::$H) = $H(halo.snapshot, halo.id, empty(halo.props), empty(halo.particles))
         function Base.:(==)(halo1::$H, halo2::$H)
             return halo1.snapshot == halo2.snapshot &&
