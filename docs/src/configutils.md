@@ -8,6 +8,9 @@ CurrentModule = CosmoReaderBase
 
 ### Property Configuration
 
+Use `PropertyConfig` to create the configuration for particle and subfind properties
+found in simulation files.
+
 ```@docs
 ConfigManager.PropertyConfig
 ConfigManager.add_property!
@@ -22,6 +25,9 @@ ConfigManager.haskey(::ConfigManager.PropertyConfig, _)
 ```
 
 ### Particle Type Configuration
+
+Use `ParticleTypeConfig` to create the configuration for the particle types found in a simulation,
+that is gas, stars, dark matter, disk, bulge, etc.
 
 ```@docs
 ConfigManager.ParticleTypeConfig
