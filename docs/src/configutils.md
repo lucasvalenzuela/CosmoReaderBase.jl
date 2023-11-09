@@ -6,14 +6,34 @@ CurrentModule = CosmoReaderBase
 
 ## Configuration Utils
 
+### Property Configuration
+
 ```@docs
 ConfigManager.PropertyConfig
 ConfigManager.add_property!
 ConfigManager.add_identifier!
-ConfigManager.delete!
-ConfigManager.getindex
-ConfigManager.get
-ConfigManager.haskey
+ConfigManager.delete!(::ConfigManager.PropertyConfig, ::Symbol)
+ConfigManager.getindex(::ConfigManager.PropertyConfig, ::Symbol)
+ConfigManager.getindex(::ConfigManager.PropertyConfig, _)
+ConfigManager.get(::ConfigManager.PropertyConfig, ::Symbol, _)
+ConfigManager.get(::ConfigManager.PropertyConfig, _, _)
+ConfigManager.haskey(::ConfigManager.PropertyConfig, ::Symbol)
+ConfigManager.haskey(::ConfigManager.PropertyConfig, _)
+```
+
+### Particle Type Configuration
+
+```@docs
+ConfigManager.ParticleTypeConfig
+ConfigManager.add_particle_type!
+ConfigManager.particleidentifier
+ConfigManager.particleindex
+ConfigManager.particlearray
+ConfigManager.particlearrayview
+ConfigManager.delete!(::ConfigManager.ParticleTypeConfig, ::Symbol)
+ConfigManager.getindex(::ConfigManager.ParticleTypeConfig, ::Symbol)
+ConfigManager.get(::ConfigManager.ParticleTypeConfig, ::Symbol, _)
+ConfigManager.haskey(::ConfigManager.ParticleTypeConfig, ::Symbol)
 ```
 
 
