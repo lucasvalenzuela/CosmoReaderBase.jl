@@ -471,11 +471,9 @@ function read_particles_in_cuboid(
 ) end
 
 """
-    read_particle_ids(::AbstractHalo) -> Vector
+    read_particle_ids(halo::AbstractHalo) -> Vector
 
 Returns the particle IDs of the halo.
-
-This is not exported.
 """
 function read_particle_ids(::AbstractHalo) end
 

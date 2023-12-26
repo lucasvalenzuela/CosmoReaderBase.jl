@@ -60,6 +60,7 @@ export
     read_prop,
     read_halos,
     read_subhalos,
+    read_particle_ids,
 
     # Merger tree
     has_prop,
