@@ -62,8 +62,10 @@ function get_snapshot(::AbstractCosmoSimulation, snapid) end
 
 """
     get_nearest_snapshot(sim::AbstractCosmoSimulation, z::Real) -> AbstractSnapshot
+    get_nearest_snapshot(sim::AbstractCosmoSimulation, time::Number) -> AbstractSnapshot
 
-Returns the nearest snapshot of the simulation to the redshift `z`.
+Returns the nearest snapshot of the simulation to the redshift `z` or to the simulation time
+if the simulation is non-cosmological.
 """
 function get_nearest_snapshot(::AbstractCosmoSimulation, z::Real) end
 
