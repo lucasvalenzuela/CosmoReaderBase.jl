@@ -24,6 +24,7 @@ Subtypes have to implement the following methods:
 - [`snapshots`](@ref)
 - [`cosmology`](@ref)
 - [`isperiodic`](@ref)
+- [`is_cosmological`](@ref)
 - [`boxcorners`](@ref)
 - [`boxlengths`](@ref)
 - [`get_name`](@ref)
@@ -136,6 +137,13 @@ function boxlengths(sim::AbstractCosmoSimulation; kwargs...)
 end
 
 """
+    is_cosmological(sim::AbstractCosmoSimulation)
+
+Returns whether the simulation is cosmological, that is whether there is a redshift evolving.
+"""
+function is_cosmological(::AbstractCosmoSimulation) end
+
+"""
     get_name(::AbstractCosmoSimulation)
 
 Returns the name of the simulation.
@@ -192,6 +200,7 @@ Subtypes have to implement the following methods:
 - [`prev_snapshot`](@ref)
 - [`next_snapshot`](@ref)
 - [`CosmoParticles.redshift`](@ref)
+- [`simulation_time_isolated`](@ref)
 - [`get_simulation`](@ref) if `sim` is not a field
 - [`get_snapshotid`](@ref) if `id` is not a field
 
@@ -244,6 +253,66 @@ function next_snapshot(::AbstractSnapshot) end
 Returns the redshift of the snapshot.
 """
 function CosmoParticles.redshift(::AbstractSnapshot) end
+
+"""
+    Cosmology.lookback_time(snapshot::AbstractSnapshot)
+
+Returns the lookback time of the snapshot, or 0 if the simulation is not cosmological.
+
+See [Cosmology.jl](https://github.com/JuliaAstro/Cosmology.jl).
+
+# Keyword Arguments
+- `units::Symbol=:physical`: has to be `:sim`, `:physical`, or `:comoving` for simulation, physical, or comoving
+  units, respectively (note that physical and comoving will be the same for times)
+- `unitful::Bool=false`: whether unitful units should be added to the properties or not. This is ignored if
+  `units=:sim`.
+"""
+function lookback_time(s::AbstractSnapshot; units=:physical, unitful=false)
+    sim = get_simulation(s)
+    if is_cosmological(sim)
+        lb = lookback_time(u"Gyr", cosmology(sim), redshift(s))
+    else
+        lb = 0.0u"Gyr"
+    end
+
+    return units !== :sim && unitful ? lb : ustrip(lb)
+end
+
+"""
+    simulation_time(snapshot::AbstractSnapshot)
+
+Returns the time of the snapshot.
+
+# Keyword Arguments
+- `units::Symbol=:physical`: has to be `:sim`, `:physical`, or `:comoving` for simulation, physical, or comoving
+  units, respectively (note that physical and comoving will be the same for times)
+- `unitful::Bool=false`: whether unitful units should be added to the properties or not. This is ignored if
+  `units=:sim`.
+"""
+function simulation_time(s::AbstractSnapshot; units=:physical, unitful=false)
+    sim = get_simulation(s)
+    if is_cosmological(sim)
+        age = Cosmology.age(u"Gyr", cosmology(sim), redshift(s))
+        return units !== :sim && unitful ? age : ustrip(age)
+    else
+        return simulation_time_isolated(s; units, unitful)
+    end
+end
+
+"""
+    simulation_time_isolated(s::AbstractSnapshot)
+
+Returns the time of the snapshot for an isolated simulation.
+
+# Keyword Arguments
+- `units::Symbol=:physical`: has to be `:sim`, `:physical`, or `:comoving` for simulation, physical, or comoving
+  units, respectively (note that physical and comoving will be the same for times)
+- `unitful::Bool=false`: whether unitful units should be added to the properties or not. This is ignored if
+  `units=:sim`.
+
+This is called by [`simulation_time`](@ref) and is not exported.
+"""
+function simulation_time_isolated(s::AbstractSnapshot) end
 
 """
     Cosmology.cosmology(snapshot::AbstractSnapshot) -> Cosmology.AbstractCosmology

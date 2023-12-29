@@ -22,6 +22,7 @@ get_last_snapshot
 snapshots
 cosmology(::AbstractCosmoSimulation)
 isperiodic
+is_cosmological
 boxcorners(::AbstractCosmoSimulation)
 boxlengths(::AbstractCosmoSimulation)
 CosmoReaderBase.get_name
@@ -46,7 +47,14 @@ CosmoReaderBase.get_config(::AbstractSnapshot)
 prev_snapshot
 next_snapshot
 CosmoParticles.redshift
+lookback_time
+simulation_time
 cosmology(::AbstractSnapshot)
 boxcorners(s::AbstractSnapshot)
 boxlengths(::AbstractSnapshot)
+```
+
+For developers implementing the interface:
+```@docs
+simulation_time_isolated
 ```

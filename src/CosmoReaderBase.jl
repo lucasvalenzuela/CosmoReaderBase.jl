@@ -1,6 +1,7 @@
 module CosmoReaderBase
 
-import Cosmology: cosmology
+import Cosmology
+import Cosmology: cosmology, lookback_time
 using CosmoParticles
 using Unitful
 
@@ -23,7 +24,10 @@ export
     get_last_snapshot,
     snapshots,
     cosmology,
+    lookback_time,
+    simulation_time,
     isperiodic,
+    is_cosmological,
     boxcorners,
     boxlengths,
 
