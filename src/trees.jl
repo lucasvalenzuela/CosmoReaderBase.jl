@@ -23,23 +23,24 @@ Subtypes have to implement the following methods:
 - [`convert_halonode_prop`](@ref): not exported
 - [`get_halo(::AbstractMergerTreeNode)`](@ref)
 - [`get_subhalo(::AbstractMergerTreeNode)`](@ref)
-- [`get_tree_node(::Type{<:AbstractMergerTree}, ::Subhalo)`](@ref)
-- [`get_tree_node(::Type{<:AbstractMergerTree}, ::Halo)`](@ref): if the tree represents `Halo`s
+- [`get_tree_node(::AbstractMergerTree, ::Subhalo)`](@ref)
+- [`get_tree_node(::AbstractMergerTree, ::Halo)`](@ref): if the tree represents `Halo`s
 - [`first_progenitor`](@ref)
-- [`first_progenitor_at`](@ref)
+- [`first_progenitor_at`](@ref): optional for performance
 - [`descendant`](@ref)
 - [`next_progenitor_sibling`](@ref)
-- [`prev_progenitor_sibling`](@ref)
-- [`first_progenitor_sibling`](@ref)
-- [`first_progenitors`](@ref)
-- [`first_progenitors_and_self`](@ref)
-- [`descendants`](@ref)
-- [`descendant_at`](@ref)
-- [`descendants_and_self`](@ref)
-- [`direct_progenitors`](@ref)
-- [`progenitor_siblings`](@ref)
+- [`prev_progenitor_sibling`](@ref): optional for performance
+- [`first_progenitor_sibling`](@ref): optional for performance
+- [`first_progenitors`](@ref): optional for performance
+- [`first_progenitors_and_self`](@ref): optional for performance
+- [`descendants`](@ref): optional for performance
+- [`descendant_at`](@ref): optional for performance
+- [`descendants_and_self`](@ref): optional for performance
+- [`direct_progenitors`](@ref): optional for performance
+- [`progenitor_siblings`](@ref): optional for performance
 - [`get_tree(::AbstractMergerTreeNode)`](@ref): if `tree` is not a field
 - [`get_snapshot(::AbstractMergerTreeNode)`](@ref): if `snapshot` is not a field
+- `Base.:(==)`: for some of the default traversal methods to work
 
 This is not exported.
 """
@@ -54,7 +55,7 @@ Returns the merger tree of the simulation the halo belongs to.
 
 See [`get_tree(::AbstractCosmoSimulation)`](@ref).
 """
-get_tree(h::AbstractHalo) = h |> get_snapshot |> get_simulation |> get_tree
+get_tree(h::AbstractHalo; kwargs...) = get_tree(h |> get_snapshot |> get_simulation; kwargs...)
 
 """
     get_tree(halonode::AbstractMergerTreeNode)
@@ -154,12 +155,12 @@ Returns the merger tree node corresponding to the halo object.
 
 For a `Halo` object, by default the halo node corresponding to its first subhalo is returned.
 """
-get_tree_node(h::Subhalo) = get_tree_node(typeof(get_tree(h)), h)
-get_tree_node(h::Halo) = get_tree_node(typeof(get_tree(h)), h)
+get_tree_node(h::Subhalo; kwargs...) = get_tree_node(get_tree(h; kwargs...), h)
+get_tree_node(h::Halo; kwargs...) = get_tree_node(get_tree(h; kwargs...), h)
 
-function get_tree_node(::Type{<:AbstractMergerTree}, h::Subhalo) end
+function get_tree_node(::AbstractMergerTree, h::Subhalo) end
 
-get_tree_node(T::Type{<:AbstractMergerTree}, h::Halo) = get_tree_node(T, get_main_subhalo(h))
+get_tree_node(tree::AbstractMergerTree, h::Halo) = get_tree_node(tree, get_main_subhalo(h))
 
 
 """
@@ -174,7 +175,7 @@ function first_progenitor(::AbstractMergerTreeNode) end
 
 """
     descendant(halo::AbstractHalo) -> AbstractHalo
-    descendant(halonode::AbstractMergerTreeNode) -> AbstractHaloNode
+    descendant(halonode::AbstractMergerTreeNode) -> AbstractMergerTreeNode
 
 Returns the descendant of the halo, or `nothing` if it does not exist.
 
@@ -184,29 +185,38 @@ function descendant(::AbstractMergerTreeNode) end
 
 """
     next_progenitor_sibling(halo::AbstractHalo) -> AbstractHalo
-    next_progenitor_sibling(halonode::AbstractMergerTreeNode) -> AbstractHaloNode
+    next_progenitor_sibling(halonode::AbstractMergerTreeNode) -> AbstractMergerTreeNode
 
 Returns the next progenitor sibling of the halo, or `nothing` if it does not exist.
 
-Next progenitor sibling means the next smaller halo that has the same descendant as the passed halo.
+Next progenitor sibling means the next halo that has the same descendant as the passed halo.
 The sibling progenitor is not necessarily from the same snapshot as the passed halo.
 """
 function next_progenitor_sibling(::AbstractMergerTreeNode) end
 
 """
     prev_progenitor_sibling(halo::AbstractHalo) -> AbstractHalo
-    prev_progenitor_sibling(halonode::AbstractMergerTreeNode) -> AbstractHaloNode
+    prev_progenitor_sibling(halonode::AbstractMergerTreeNode) -> AbstractMergerTreeNode
 
 Returns the previous progenitor sibling of the halo, or `nothing` if it does not exist.
 
-Previous progenitor sibling means the next larger halo that has the same descendant as the passed halo.
+Previous progenitor sibling means the next halo that has the same descendant as the passed halo.
 The sibling progenitor is not necessarily from the same snapshot as the passed halo.
 """
-function prev_progenitor_sibling(::AbstractMergerTreeNode) end
+function prev_progenitor_sibling(node::AbstractMergerTreeNode)
+    sibling_node = first_progenitor_sibling(node)
+    sibling_node == node && return nothing # node is the first sibling
+    while true
+        next_sibling_node = next_progenitor_sibling(sibling_node)
+        isnothing(next_sibling_node) && error("Tree corrupt: descendant is not progenitor of the given node")
+        next_sibling_node == node && return sibling_node
+        sibling_node = next_sibling_node
+    end
+end
 
 """
     first_progenitor_sibling(halo::AbstractHalo) -> AbstractHalo
-    first_progenitor_sibling(halonode::AbstractMergerTreeNode) -> AbstractHaloNode
+    first_progenitor_sibling(halonode::AbstractMergerTreeNode) -> AbstractMergerTreeNode
 
 Returns the first or main progenitor sibling of the halo, or `nothing` if it does not exist.
 
@@ -214,8 +224,17 @@ First progenitor sibling means the main halo that has the same descendant as the
 halo that the passed halo merged into.
 The sibling progenitor is not necessarily from the same snapshot as the passed halo.
 """
-function first_progenitor_sibling(::AbstractMergerTreeNode) end
+function first_progenitor_sibling(node::AbstractMergerTreeNode)
+    node |> descendant |> first_progenitor
+end
 
+
+struct FirstProgenitors{N,T}
+    node::T
+end
+
+Base.eltype(::Type{FirstProgenitors{N,T}}) where {N,T} = N
+Base.IteratorSize(::Type{<:FirstProgenitors}) = Base.SizeUnknown()
 
 """
     first_progenitors(halo::AbstractHalo)
@@ -228,7 +247,10 @@ being identified in all snapshots.
 
 Also see [`first_progenitors_and_self`](@ref).
 """
-function first_progenitors(::AbstractMergerTreeNode) end
+function first_progenitors(node::N) where {N<:AbstractMergerTreeNode}
+    prognode = first_progenitor(node)
+    FirstProgenitors{N,typeof(prognode)}(prognode)
+end
 
 """
     first_progenitors_and_self(halo::AbstractHalo)
@@ -242,7 +264,20 @@ being identified in all snapshots.
 
 Also see [`first_progenitors`](@ref).
 """
-function first_progenitors_and_self(::AbstractMergerTreeNode) end
+function first_progenitors_and_self(node::N) where {N<:AbstractMergerTreeNode}
+    FirstProgenitors{N,typeof(node)}(node)
+end
+
+Base.iterate(S::FirstProgenitors, node=S.node) = isnothing(node) ? nothing : (node, first_progenitor(node))
+
+
+struct Descendants{N,T}
+    node::T
+end
+
+Base.eltype(::Type{Descendants{N,T}}) where {N,T} = N
+Base.IteratorSize(::Type{<:Descendants}) = Base.SizeUnknown()
+
 
 """
     descendants(halo::AbstractHalo)
@@ -255,7 +290,10 @@ being identified in all snapshots.
 
 Also see [`descendants_and_self`](@ref).
 """
-function descendants(::AbstractMergerTreeNode) end
+function descendants(node::N) where {N<:AbstractMergerTreeNode}
+    descnode = descendant(node)
+    Descendants{N,typeof(descnode)}(descnode)
+end
 
 """
     descendants_and_self(halo::AbstractHalo)
@@ -269,34 +307,55 @@ being identified in all snapshots.
 
 Also see [`descendants`](@ref).
 """
-function descendants_and_self(::AbstractMergerTreeNode) end
+function descendants_and_self(node::N) where {N<:AbstractMergerTreeNode}
+    Descendants{N,typeof(node)}(node)
+end
+
+Base.iterate(S::Descendants, node=S.node) = isnothing(node) ? nothing : (node, descendant(node))
+
+
+struct DirectProgenitors{N,T}
+    node::T
+end
+
+Base.eltype(::Type{DirectProgenitors{N,T}}) where {N,T} = N
+Base.IteratorSize(::Type{<:DirectProgenitors}) = Base.SizeUnknown()
 
 """
     direct_progenitors(halo::AbstractHalo)
     direct_progenitors(halonode::AbstractMergerTreeNode)
 
-Returns an iterator over all direct progenitors of the passed halo from largest to smallest.
+Returns an iterator over all direct progenitors of the passed halo starting with the largest.
 
 Note it is possible that not all direct progenitors are from the same snapshot due to halos not always
 being identified in all snapshots.
+It is also possible that the halos following the first are not ordered by size or mass.
 
 Also see [`progenitor_siblings`](@ref).
 """
-function direct_progenitors(::AbstractMergerTreeNode) end
+function direct_progenitors(node::N) where {N<:AbstractMergerTreeNode}
+    prognode = first_progenitor(node)
+    DirectProgenitors{N,typeof(prognode)}(prognode)
+end
 
 """
     progenitor_siblings(halo::AbstractHalo)
     progenitor_siblings(halonode::AbstractMergerTreeNode)
 
-Returns an iterator over all smaller halos that merge into the same descendant of the passed halo node from
-largest to smallest.
+Returns an iterator over all smaller halos that merge into the same descendant of the passed halo node.
 
 Note it is possible that not all progenitor siblings are from the same snapshot as the passed halo due to halos
 not always being identified in all snapshots.
+Depending on the merger tree, these will not necessarily be ordered by size or mass.
 
 Also see [`direct_progenitors`](@ref).
 """
-function progenitor_siblings(::AbstractMergerTreeNode) end
+function progenitor_siblings(node::N) where {N<:AbstractMergerTreeNode}
+    sibnode = next_progenitor_sibling(node)
+    DirectProgenitors{N,typeof(sibnode)}(sibnode)
+end
+
+Base.iterate(S::DirectProgenitors, node=S.node) = isnothing(node) ? nothing : (node, next_progenitor_sibling(node))
 
 
 for func in [
@@ -307,12 +366,12 @@ for func in [
     :first_progenitor_sibling,
 ]
     quote
-        function $func(h::Halo)
-            node = $func(get_tree_node(h))
+        function $func(h::Halo; kwargs...)
+            node = $func(get_tree_node(h; kwargs...))
             return isnothing(node) ? nothing : get_halo(node)
         end
-        function $func(h::Subhalo)
-            node = $func(get_tree_node(h))
+        function $func(h::Subhalo; kwargs...)
+            node = $func(get_tree_node(h; kwargs...))
             return isnothing(node) ? nothing : get_subhalo(node)
         end
     end |> eval
@@ -327,14 +386,14 @@ for func in [
     :progenitor_siblings,
 ]
     quote
-        function $func(h::Halo)
+        function $func(h::Halo; kwargs...)
             f = node -> get_halo(node)
-            Iterators.map(f, $func(get_tree_node(h)))
+            Iterators.map(f, $func(get_tree_node(h; kwargs...)))
         end
 
-        function $func(h::Subhalo)
+        function $func(h::Subhalo; kwargs...)
             f = node -> get_subhalo(node)
-            Iterators.map(f, $func(get_tree_node(h)))
+            Iterators.map(f, $func(get_tree_node(h; kwargs...)))
         end
     end |> eval
 end
@@ -347,12 +406,12 @@ Returns the closest first progenitor to the given redshift.
 
 See [`first_progenitors`](@ref).
 """
-function first_progenitor_at(halo::Union{AbstractHalo,AbstractMergerTreeNode}, z::Real)
+function first_progenitor_at(halo::Union{AbstractHalo,AbstractMergerTreeNode}, z::Real; kwargs...)
     currentprog = halo
     prevprog = halo
     current_z = prev_z = redshift(get_snapshot(halo))
 
-    for prog in first_progenitors(halo)
+    for prog in first_progenitors(halo; kwargs...)
         prog_z = redshift(get_snapshot(prog))
         prevprog, currentprog = currentprog, prog
         prev_z, current_z = current_z, prog_z
@@ -386,18 +445,18 @@ function first_progenitor_at(halonode::AbstractMergerTreeNode; id)
     return nothing
 end
 
-function first_progenitor_at(halo::Halo; id)
-    node = get_tree_node(halo)
+function first_progenitor_at(halo::Halo; id, kwargs...)
+    node = get_tree_node(halo; kwargs...)
     return first_progenitor_at(node; id) |> get_halo
 end
 
-function first_progenitor_at(halo::Subhalo; id)
-    node = get_tree_node(halo)
+function first_progenitor_at(halo::Subhalo; id, kwargs...)
+    node = get_tree_node(halo; kwargs...)
     return first_progenitor_at(node; id) |> get_subhalo
 end
 
-function first_progenitor_at(halonode::Union{AbstractHalo,AbstractMergerTreeNode}, snapshot::AbstractSnapshot)
-    return first_progenitor_at(halonode; id=get_snapshotid(snapshot))
+function first_progenitor_at(halonode::Union{AbstractHalo,AbstractMergerTreeNode}, snapshot::AbstractSnapshot; kwargs...)
+    return first_progenitor_at(halonode; id=get_snapshotid(snapshot), kwargs...)
 end
 
 
@@ -408,12 +467,12 @@ Returns the closest descendant to the given redshift.
 
 See [`descendants`](@ref).
 """
-function descendant_at(halo::Union{AbstractHalo,AbstractMergerTreeNode}, z::Real)
+function descendant_at(halo::Union{AbstractHalo,AbstractMergerTreeNode}, z::Real; kwargs...)
     currentdesc = halo
     prevdesc = halo
     current_z = prev_z = redshift(get_snapshot(halo))
 
-    for desc in descendants(halo)
+    for desc in descendants(halo; kwargs...)
         desc_z = redshift(get_snapshot(desc))
         prevdesc, currentdesc = currentdesc, desc
         prev_z, current_z = current_z, desc_z
@@ -447,16 +506,16 @@ function descendant_at(halonode::AbstractMergerTreeNode; id)
     return nothing
 end
 
-function descendant_at(halo::Halo; id)
-    node = get_tree_node(halo)
+function descendant_at(halo::Halo; id, kwargs...)
+    node = get_tree_node(halo; kwargs...)
     return descendant_at(node; id) |> get_halo
 end
 
-function descendant_at(halo::Subhalo; id)
-    node = get_tree_node(halo)
+function descendant_at(halo::Subhalo; id, kwargs...)
+    node = get_tree_node(halo; kwargs...)
     return descendant_at(node; id) |> get_subhalo
 end
 
-function descendant_at(halonode::Union{AbstractHalo,AbstractMergerTreeNode}, snapshot::AbstractSnapshot)
-    return descendant_at(halonode; id=get_snapshotid(snapshot))
+function descendant_at(halonode::Union{AbstractHalo,AbstractMergerTreeNode}, snapshot::AbstractSnapshot; kwargs...)
+    return descendant_at(halonode; id=get_snapshotid(snapshot), kwargs...)
 end
