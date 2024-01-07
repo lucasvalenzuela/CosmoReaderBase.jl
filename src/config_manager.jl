@@ -7,6 +7,7 @@ export PropertyConfig,
     add_property!,
     add_identifier!,
     add_particle_type!,
+    set_units!,
     particleidentifier,
     particleindex,
     particlearray,
@@ -212,6 +213,57 @@ end
 # return c
 # end
 
+"""
+    set_units!(c::PropertyConfig, prop, units)
+    set_units!(c::PropertyConfig, prop, f, unit)
+
+Modifies the units of an existing property `prop` in the configuration.
+
+The property can be passed by its original name or by any of its identifiers.
+
+# Examples
+```julia
+using CosmoReaderBase.ConfigManager
+c = PropertyConfig()
+add_property!(c, "POS", (h -> 1 / h.h0, u"kpc"), 1, :pos, :Coordinates, :POS)
+set_units!(c, "POS", (nothing, u"kpc")) # no little h involved
+
+# or using the second syntax with four arguments and using one of the Symbol identifiers:
+set_units!(c, :Coordinates, h -> 1000, u"pc") # default to pc instead of kpc
+```
+
+See [`add_property!`](@ref) about creating new properties.
+"""
+function set_units!(c::PropertyConfig, prop, units::Tuple)
+    @assert haskey(c.props, prop) "The property config object $prop is not defined, you can define it yourself using `add_property!`."
+
+    identifiers = [key for (key, val) in pairs(c.identifiers) if val == prop]
+
+    for identifier in identifiers
+        c.units[identifier] = units
+    end
+
+    return c
+end
+
+function set_units!(c::PropertyConfig, prop::Symbol, units::Tuple)
+    if haskey(c.props, prop)
+        @invoke set_units!(c::PropertyConfig, prop::Any, units::Tuple)
+    elseif haskey(c.identifiers, prop)
+        set_units!(c, c.identifiers[prop], units)
+    else
+        error("The property config object $prop is not defined, you can define it yourself using `add_property!`.")
+    end
+end
+
+function set_units!(
+    c::PropertyConfig,
+    prop,
+    func_sim_to_comoving::Union{Function,Nothing},
+    unit::Union{Unitful.Units,Nothing},
+)
+    set_units!(c, prop, (func_sim_to_comoving, unit))
+end
 
 """
     Base.delete!(config::PropertyConfig, prop)
