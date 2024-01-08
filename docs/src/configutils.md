@@ -15,6 +15,7 @@ found in simulation files.
 ConfigManager.PropertyConfig
 ConfigManager.add_property!
 ConfigManager.add_identifier!
+ConfigManager.set_units!
 ConfigManager.delete!(::ConfigManager.PropertyConfig, ::Symbol)
 ConfigManager.getindex(::ConfigManager.PropertyConfig, ::Symbol)
 ConfigManager.getindex(::ConfigManager.PropertyConfig, _)
