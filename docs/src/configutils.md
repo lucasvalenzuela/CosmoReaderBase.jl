@@ -16,6 +16,7 @@ ConfigManager.PropertyConfig
 ConfigManager.add_property!
 ConfigManager.add_identifier!
 ConfigManager.set_units!
+ConfigManager.set_rownames!
 ConfigManager.delete!(::ConfigManager.PropertyConfig, ::Symbol)
 ConfigManager.getindex(::ConfigManager.PropertyConfig, ::Symbol)
 ConfigManager.getindex(::ConfigManager.PropertyConfig, _)

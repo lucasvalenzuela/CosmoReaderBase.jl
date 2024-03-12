@@ -8,6 +8,7 @@ export PropertyConfig,
     add_identifier!,
     add_particle_type!,
     set_units!,
+    set_rownames!,
     particleidentifier,
     particleindex,
     particlearray,
@@ -263,6 +264,52 @@ function set_units!(
     unit::Union{Unitful.Units,Nothing},
 )
     set_units!(c, prop, (func_sim_to_comoving, unit))
+end
+
+"""
+    set_rownames!(c::PropertyConfig, prop, rownames)
+
+Modifies the row names of an existing property `prop` in the configuration.
+
+The property can be passed by its original name or by any of its identifiers.
+
+# Examples
+```julia
+using CosmoReaderBase.ConfigManager
+c = PropertyConfig()
+add_property!(c, "Zs", (h -> 1e10 / h.h0, u"Msun"), (:H, :He), :Zs, :Metallicities)
+set_rownames!(c, "Zs", (:H, :He, :Fe))
+
+# or removing the rownames entirely:
+set_rownames!(c, "Zs", nothing)
+```
+
+See [`add_property!`](@ref) about creating new properties.
+"""
+function set_rownames!(c::PropertyConfig, prop, rownames::Union{Nothing,NTuple{N,Symbol}}) where {N}
+    @assert haskey(c.props, prop) "The property config object $prop is not defined, you can define it yourself using `add_property!`."
+
+    identifiers = [key for (key, val) in pairs(c.identifiers) if val == prop]
+
+    for identifier in identifiers
+        if isnothing(rownames)
+            delete!(c.rownames, identifier)
+        else
+            c.rownames[identifier] = rownames
+        end
+    end
+
+    return c
+end
+
+function set_rownames!(c::PropertyConfig, prop::Symbol, rownames::Union{Nothing,NTuple{N,Symbol}}) where {N}
+    if haskey(c.props, prop)
+        @invoke set_rownames!(c::PropertyConfig, prop::Any, rownames::NTuple{Any,Symbol})
+    elseif haskey(c.identifiers, prop)
+        set_rownames!(c, c.identifiers[prop], rownames)
+    else
+        error("The property config object $prop is not defined, you can define it yourself using `add_property!`.")
+    end
 end
 
 """
