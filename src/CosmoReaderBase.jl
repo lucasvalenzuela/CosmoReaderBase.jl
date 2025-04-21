@@ -30,6 +30,9 @@ export
     is_cosmological,
     boxcorners,
     boxlengths,
+    particle_properties,
+    halo_properties,
+    subhalo_properties,
 
     # Simulation
     CosmoSimulation,
