@@ -425,7 +425,7 @@ function properties(c::PropertyConfig, available_props=nothing; private=startswi
         avail = nothing
     end
 
-    arr = [(; prop, unit=c.units[ident][2], identifiers=_get_identifiers(c, prop), rownames=get(c.rownames, prop, Symbol[]), available=isnothing(avail) ? missing : prop in avail) for (prop, ident) in pairs(c.props) if !(private(prop))]
+    arr = [(; prop, unit=c.units[ident][2], identifiers=_get_identifiers(c, prop), rownames=get(c.rownames, ident, Symbol[]), available=isnothing(avail) ? missing : prop in avail) for (prop, ident) in pairs(c.props) if !(private(prop))]
 
     # add properties that are available but not contained in the property config
     if !isnothing(avail)
