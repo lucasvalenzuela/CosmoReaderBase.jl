@@ -394,6 +394,53 @@ Base.copy(c::PropertyConfig) = PropertyConfig(
     copy(c.rownames),
 )
 
+"""
+    properties(c::PropertyConfig, available_props=nothing; private=startswith("_"))
+
+Returns the available properties as a `NamedTuple` vector.
+
+The table has the following column names:
+- `prop`: the property name as saved in the simulation output
+- `unit`: the unit of the property, or `nothing` if unitless
+- `identifiers`: the possible identifiers of the property
+- `rownames`: row names of the properties, else `nothing`
+- `available`: `true`, `false`, or `missing`, depending on whether the property is actually available for the
+  current simulation at hand
+
+# Arguments
+- `available_props`: vector of properties that are available from the simulation output, used for the `available`
+  column
+- `private=startswith("_")`: function that takes a property name and returns true if it should not be output in
+  the table
+
+See also [`particle_properties`](@ref), [`halo_properties`](@ref), [`subhalo_properties`](@ref), which require
+the format returned here.
+
+This is not exported.
+"""
+function properties(c::PropertyConfig, available_props=nothing; private=startswith("_"))
+    if !isnothing(available_props)
+        avail = Set(available_props)
+    else
+        avail = nothing
+    end
+
+    arr = [(; prop, unit=c.units[ident][2], identifiers=_get_identifiers(c, prop), rownames=get(c.rownames, prop, Symbol[]), available=isnothing(avail) ? missing : prop in avail) for (prop, ident) in pairs(c.props) if !(private(prop))]
+
+    # add properties that are available but not contained in the property config
+    additional_props = setdiff(avail, keys(c.props))
+    for prop in additional_props
+        push!(arr, (; prop, unit=nothing, identifiers=Symbol[], rownames=Symbol[], available=true))
+    end
+
+    return arr
+end
+
+function _get_identifiers(c::PropertyConfig{T}, prop::T) where {T}
+    [identifier for (identifier, p) in pairs(c.identifiers) if p == prop]
+end
+
+
 function Base.show(io::IO, mime::MIME"text/plain", c::PropertyConfig)
     printstyled(io, "PropertyConfig: "; bold=true)
     print(io, join(keys(c.props), ", "))

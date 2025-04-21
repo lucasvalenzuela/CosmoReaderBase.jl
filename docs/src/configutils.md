@@ -24,6 +24,7 @@ ConfigManager.get(::ConfigManager.PropertyConfig, ::Symbol, _)
 ConfigManager.get(::ConfigManager.PropertyConfig, _, _)
 ConfigManager.haskey(::ConfigManager.PropertyConfig, ::Symbol)
 ConfigManager.haskey(::ConfigManager.PropertyConfig, _)
+ConfigManager.properties
 ```
 
 ### Particle Type Configuration

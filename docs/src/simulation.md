@@ -35,6 +35,9 @@ AbstractCosmoReaderConfig
 CosmoSimulation
 CosmoReaderBase.get_config(::CosmoSimulation)
 CosmoReaderBase.get_dir
+particle_properties
+halo_properties
+subhalo_properties
 ```
 
 ## Snapshots

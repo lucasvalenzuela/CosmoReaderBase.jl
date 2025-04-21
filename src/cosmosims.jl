@@ -3,11 +3,67 @@
 
 Abstract type for representing different configurations for cosmological simulations.
 
+Subtypes have to implement the following methods:
+- [`particle_properties`](@ref)
+- [`halo_properties`](@ref)
+- [`subhalo_properties`](@ref)
+
 This is not exported.
 """
 abstract type AbstractCosmoReaderConfig end
 
 Base.broadcastable(config::AbstractCosmoReaderConfig) = Ref(config)
+
+"""
+    particle_properties(config::AbstractCosmoReaderConfig)
+    particle_properties(sim::AbstractCosmoSimulation)
+    particle_properties(snapshot::AbstractSnapshot)
+
+Returns the available particle properties as a `NamedTuple` vector.
+
+The table has the following column names:
+- `prop`: the property name as saved in the simulation output
+- `unit`: the unit of the property, or `nothing` if unitless
+- `identifiers`: the possible identifiers of the property
+- `rownames`: row names of the properties, else `nothing`
+- `available`: `true`, `false`, or `missing`, depending on whether the property is actually available for the
+  current simulation at hand
+"""
+function particle_properties(config::AbstractCosmoReaderConfig) end
+
+"""
+    halo_properties(config::AbstractCosmoReaderConfig)
+    halo_properties(sim::AbstractCosmoSimulation)
+    halo_properties(snapshot::AbstractSnapsht)
+
+Returns the available halo properties as a `NamedTuple` vector.
+
+The table has the following column names:
+- `prop`: the property name as saved in the simulation output
+- `unit`: the unit of the property, or `nothing` if unitless
+- `identifiers`: the possible identifiers of the property
+- `rownames`: row names of the properties, else `nothing`
+- `available`: `true`, `false`, or `missing`, depending on whether the property is actually available for the
+  current simulation at hand
+"""
+function halo_properties(config::AbstractCosmoReaderConfig) end
+
+"""
+    subhalo_properties(config::AbstractCosmoReaderConfig)
+    subhalo_properties(sim::AbstractCosmoSimulation)
+    subhalo_properties(snapshot::AbstractSnapshot)
+
+Returns the available subhalo properties as a `NamedTuple` vector.
+
+The table has the following column names:
+- `prop`: the property name as saved in the simulation output
+- `unit`: the unit of the property, or `nothing` if unitless
+- `identifiers`: the possible identifiers of the property
+- `rownames`: row names of the properties, else `nothing`
+- `available`: `true`, `false`, or `missing`, depending on whether the property is actually available for the
+  current simulation at hand
+"""
+function subhalo_properties(config::AbstractCosmoReaderConfig) end
 
 """
     abstract type AbstractCosmoSimulation end
@@ -48,8 +104,6 @@ has_tree(::AbstractCosmoSimulation) = false
     get_tree(sim::AbstractCosmoSimulation) -> AbstractMergerTree
 
 Returns the merger tree, or `nothing` if it does not exist for the simulation.
-
-Note: Merger trees are still under development and currently not supported.
 """
 get_tree(::AbstractCosmoSimulation) = nothing
 
@@ -154,6 +208,9 @@ This is not exported.
 """
 function get_name(::AbstractCosmoSimulation) end
 
+particle_properties(sim::AbstractCosmoSimulation) = particle_properties(get_config(sim))
+halo_properties(sim::AbstractCosmoSimulation) = halo_properties(get_config(sim))
+subhalo_properties(sim::AbstractCosmoSimulation) = subhalo_properties(get_config(sim))
 
 
 """
@@ -367,3 +424,7 @@ function boxlengths(s::AbstractSnapshot; units::Symbol=:physical, unitful::Bool=
         return boxlengths(sim; units, unitful)
     end
 end
+
+particle_properties(s::AbstractSnapshot) = particle_properties(get_config(get_simulation(s)))
+halo_properties(s::AbstractSnapshot) = halo_properties(get_config(get_simulation(s)))
+subhalo_properties(s::AbstractSnapshot) = subhalo_properties(get_config(get_simulation(s)))
