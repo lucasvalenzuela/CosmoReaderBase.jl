@@ -413,7 +413,7 @@ The table has the following column names:
 - `private=startswith("_")`: function that takes a property name and returns true if it should not be output in
   the table
 
-See also [`particle_properties`](@ref), [`halo_properties`](@ref), [`subhalo_properties`](@ref), which require
+See also [`CosmoReaderBase.particle_properties`](@ref), [`CosmoReaderBase.halo_properties`](@ref), [`CosmoReaderBase.subhalo_properties`](@ref), which require
 the format returned here.
 
 This is not exported.
