@@ -428,9 +428,11 @@ function properties(c::PropertyConfig, available_props=nothing; private=startswi
     arr = [(; prop, unit=c.units[ident][2], identifiers=_get_identifiers(c, prop), rownames=get(c.rownames, prop, Symbol[]), available=isnothing(avail) ? missing : prop in avail) for (prop, ident) in pairs(c.props) if !(private(prop))]
 
     # add properties that are available but not contained in the property config
-    additional_props = setdiff(avail, keys(c.props))
-    for prop in additional_props
-        push!(arr, (; prop, unit=nothing, identifiers=Symbol[], rownames=Symbol[], available=true))
+    if !isnothing(avail)
+        additional_props = setdiff(avail, keys(c.props))
+        for prop in additional_props
+            push!(arr, (; prop, unit=nothing, identifiers=Symbol[], rownames=Symbol[], available=true))
+        end
     end
 
     return arr
