@@ -1,10 +1,22 @@
 using CosmoReaderBase
 using Test
 using Unitful
+using Aqua
+using ExplicitImports
+using JET
 
 const CRB = CosmoReaderBase
 
 @testset "CosmoReaderBase.jl" begin
+    @testset "Code quality" begin
+        Aqua.test_all(CosmoReaderBase)
+        @test check_no_stale_explicit_imports(CosmoReaderBase) === nothing
+        @test check_no_self_qualified_accesses(CosmoReaderBase) === nothing
+        if JET.JET_AVAILABLE
+            JET.test_package(CosmoReaderBase; target_modules=(CosmoReaderBase,))
+        end
+    end
+
     @testset "Conversion" begin
         s = rand()
         a = rand(3)

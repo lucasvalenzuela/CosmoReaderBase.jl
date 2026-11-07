@@ -1,9 +1,13 @@
 # CosmoReaderBase
 
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliacosmosims.gitlab.io/CosmoReaderBase.jl/dev)
-[![Build Status](https://gitlab.com/juliacosmosims/CosmoReaderBase.jl/badges/main/pipeline.svg)](https://gitlab.com/juliacosmosims/CosmoReaderBase.jl/pipelines)
-[![Coverage](https://gitlab.com/juliacosmosims/CosmoReaderBase.jl/badges/main/coverage.svg)](https://gitlab.com/juliacosmosims/CosmoReaderBase.jl/commits/main)
-[![Coverage](https://codecov.io/gl/juliacosmosims/CosmoReaderBase.jl/branch/main/graph/badge.svg?token=40ILLQHGW3)](https://codecov.io/gl/juliacosmosims/CosmoReaderBase.jl)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://lucasvalenzuela.github.io/CosmoReaderBase.jl/stable/)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://lucasvalenzuela.github.io/CosmoReaderBase.jl/dev/)
+[![Build Status](https://github.com/lucasvalenzuela/CosmoReaderBase.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/lucasvalenzuela/CosmoReaderBase.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Coverage](https://codecov.io/gh/lucasvalenzuela/CosmoReaderBase.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/lucasvalenzuela/CosmoReaderBase.jl)
+[![Aqua](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
+
+CosmoReaderBase is a Julia package that provides an API for reading data from cosmological
+simulations, with the particle data represented by CosmoParticles.jl.
 
 ## Installation
 
