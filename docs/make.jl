@@ -1,9 +1,13 @@
 using CosmoReaderBase
 using Documenter
+using DocumenterInterLinks
 
 DocMeta.setdocmeta!(CosmoReaderBase, :DocTestSetup, :(using CosmoReaderBase); recursive=true)
 
+links = InterLinks("Julia" => "https://docs.julialang.org/en/v1/")
+
 makedocs(;
+    plugins=[links],
     modules=[CosmoReaderBase],
     authors="Lucas Valenzuela",
     sitename="CosmoReaderBase.jl",
