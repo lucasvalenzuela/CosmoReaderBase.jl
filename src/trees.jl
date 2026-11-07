@@ -355,7 +355,8 @@ function progenitor_siblings(node::N) where {N<:AbstractMergerTreeNode}
     DirectProgenitors{N,typeof(sibnode)}(sibnode)
 end
 
-Base.iterate(S::DirectProgenitors, node=S.node) = isnothing(node) ? nothing : (node, next_progenitor_sibling(node))
+Base.iterate(S::DirectProgenitors, node=S.node) =
+    isnothing(node) ? nothing : (node, next_progenitor_sibling(node))
 
 
 for func in [
@@ -455,7 +456,11 @@ function first_progenitor_at(halo::Subhalo; id, kwargs...)
     return first_progenitor_at(node; id) |> get_subhalo
 end
 
-function first_progenitor_at(halonode::Union{AbstractHalo,AbstractMergerTreeNode}, snapshot::AbstractSnapshot; kwargs...)
+function first_progenitor_at(
+    halonode::Union{AbstractHalo,AbstractMergerTreeNode},
+    snapshot::AbstractSnapshot;
+    kwargs...,
+)
     return first_progenitor_at(halonode; id=get_snapshotid(snapshot), kwargs...)
 end
 
@@ -516,6 +521,10 @@ function descendant_at(halo::Subhalo; id, kwargs...)
     return descendant_at(node; id) |> get_subhalo
 end
 
-function descendant_at(halonode::Union{AbstractHalo,AbstractMergerTreeNode}, snapshot::AbstractSnapshot; kwargs...)
+function descendant_at(
+    halonode::Union{AbstractHalo,AbstractMergerTreeNode},
+    snapshot::AbstractSnapshot;
+    kwargs...,
+)
     return descendant_at(halonode; id=get_snapshotid(snapshot), kwargs...)
 end

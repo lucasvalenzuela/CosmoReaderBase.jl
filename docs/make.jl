@@ -1,16 +1,19 @@
 using CosmoReaderBase
 using Documenter
+using DocumenterInterLinks
 
 DocMeta.setdocmeta!(CosmoReaderBase, :DocTestSetup, :(using CosmoReaderBase); recursive=true)
 
+links = InterLinks("Julia" => "https://docs.julialang.org/en/v1/")
+
 makedocs(;
+    plugins=[links],
     modules=[CosmoReaderBase],
     authors="Lucas Valenzuela",
-    repo="https://gitlab.com/juliacosmosims/CosmoReaderBase.jl/blob/{commit}{path}#{line}",
     sitename="CosmoReaderBase.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://juliacosmosims.gitlab.io/CosmoReaderBase.jl",
+        canonical="https://lucasvalenzuela.github.io/CosmoReaderBase.jl",
         assets=String[],
     ),
     pages=[
@@ -24,7 +27,4 @@ makedocs(;
     ],
 )
 
-deploydocs(;
-    repo="gitlab.com/juliacosmosims/CosmoReaderBase.jl",
-    devbranch="main",
-)
+deploydocs(; repo="github.com/lucasvalenzuela/CosmoReaderBase.jl", devbranch="main")

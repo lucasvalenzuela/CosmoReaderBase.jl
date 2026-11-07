@@ -253,7 +253,9 @@ function set_units!(c::PropertyConfig, prop::Symbol, units::Tuple)
     elseif haskey(c.identifiers, prop)
         set_units!(c, c.identifiers[prop], units)
     else
-        error("The property config object $prop is not defined, you can define it yourself using `add_property!`.")
+        error(
+            "The property config object $prop is not defined, you can define it yourself using `add_property!`.",
+        )
     end
 end
 
@@ -308,7 +310,9 @@ function set_rownames!(c::PropertyConfig, prop::Symbol, rownames::Union{Nothing,
     elseif haskey(c.identifiers, prop)
         set_rownames!(c, c.identifiers[prop], rownames)
     else
-        error("The property config object $prop is not defined, you can define it yourself using `add_property!`.")
+        error(
+            "The property config object $prop is not defined, you can define it yourself using `add_property!`.",
+        )
     end
 end
 
@@ -425,7 +429,15 @@ function properties(c::PropertyConfig, available_props=nothing; private=startswi
         avail = nothing
     end
 
-    arr = [(; prop, unit=c.units[ident][2], identifiers=_get_identifiers(c, prop), rownames=get(c.rownames, ident, Symbol[]), available=isnothing(avail) ? missing : prop in avail) for (prop, ident) in pairs(c.props) if !(private(prop))]
+    arr = [
+        (;
+            prop,
+            unit=c.units[ident][2],
+            identifiers=_get_identifiers(c, prop),
+            rownames=get(c.rownames, ident, Symbol[]),
+            available=isnothing(avail) ? missing : prop in avail,
+        ) for (prop, ident) in pairs(c.props) if !(private(prop))
+    ]
 
     # add properties that are available but not contained in the property config
     if !isnothing(avail)
