@@ -27,7 +27,4 @@ makedocs(;
     ],
 )
 
-deploydocs(;
-    repo="github.com/lucasvalenzuela/CosmoReaderBase.jl",
-    devbranch="main",
-)
+deploydocs(; repo="github.com/lucasvalenzuela/CosmoReaderBase.jl", devbranch="main")
